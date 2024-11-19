@@ -1,0 +1,2 @@
+postbot
+-DCATKIN_DEVEL_PREFIX=/home/ludoludo/postbot/devel -DCMAKE_INSTALL_PREFIX=/home/ludoludo/postbot/install -G Unix Makefiles
