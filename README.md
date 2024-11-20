@@ -21,36 +21,45 @@ The simulated world spawns marbles in different points of the map at every cycle
 ---
 
 ## Core Components🕹️
+### Nodes
+- `Managing Deliveries Node`: For managing deliveries by communicating the Box Goal and updating the boxes status.
+- `Spawned Marble Node`: For managing the position of the newly-spawned marble and to communicate its position.
+- `Navigation Node`: Receive the delivery goal and plans the path the robot has to follow through **ROS Navigation Stack**.
 
+### Topics
+- `/current marble`: Communicates position and color of the newly-spawned marble.
+- `/box status`: Communicates position, color and status of the boxes.
+- `/box goal`: Communicates coordinates of the box goal.
+
+### Custom Messages
+- `MarbleInfo.msg`: Info about color and position of the spawned marble.
+- `BoxStatus.msg`: Info about status, color and box coordinates.
+- `BoxGoal.msg`: Coordinates of box goal.
+
+### Services
+- `/spawn marble`: Generates a new marble.
+- `/reset boxes`: Reset boxed and spawn them in new random positions.
+
+  
 ### Parameters
-- `first_box_position`: Predefined positions for the boxes when the system starts.
-- `robot_configuration`: Predefined initial position and movement settings of the robot.
+- `box_position`: Positions for the boxes when the system starts.
+- `robot_configuration`: Movement settings of the robot.
+- `robot_initial_pose`: Position of the robot when the system starts.
 
 ---
 
 ## How PostBot Works?🖲️
 
-**Initialization**:
    - During the system startup, the robot is spawned at an initial position defined by the parameter `robot_initial_pose`.
    - The nodes are initialized, and the system gets ready to spawn marbles and boxes.
-
-**Marble Spawning**:
    - The `Spawned Marble Node` uses the `/spawn marble` service to generate a new marble in a random position.
    - The position and color of the marble are published on the `/current marble` topic.
-
-**Delivery Planning**:
    - The `Managing Deliveries Node` receives the marble's information and determines the corresponding box for delivery.
    - It retrieves the box coordinates and publishes them on the `/box goal` topic.
-
-**Robot Navigation**:
    - The `Navigation Node` receives the goal coordinates from `/box goal` and uses the **ROS Navigation Stack** to plan a path.
    - The robot moves autonomously to the marble position, "collects" it, and then navigates to the box.
-
-**Delivery Completion**:
    - Once the marble is delivered, the `Managing Deliveries Node` updates the box's status on the `/box status` topic.
-
-**Cycle Reset**:
-   When all boxes are full:
+   - When all boxes are full:
      - The `Managing Deliveries Node` activates the `/reset boxes` service, resetting the boxes' positions.
      - The robot is reset to its predefined `robot_initial_pose`, restarting the delivery cycle.
 
