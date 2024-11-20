@@ -1,55 +1,60 @@
-# PostBot🤖 - Il tuo Robot Postino Intelligente!
+# PostBot🤖 - Delivery is on its way!
 
 ---
 
-## Cosa è PostBot?🤖
+## What is PostBot?🤖
 
-**PostBot** è un progetto che simula un robot postino autonomo, progettato per raccogliere e consegnare palline colorate a scatole corrispondenti in base al colore. Il tutto progettato con **ROS** in un ambiente simulato come **Gazebo** per vedere al meglio come il robot si comporta!
+**PostBot** is an autonomous postman-robot that collects colored marbles and has to deliver them in boxes according to the same color. Everything is simulated thanks to **ROS** and **Gazebo** worlds to see exactly how the bot does its job!
 
-L'ambiente simulato inserisce palline che compaiono in posizioni casuali ad ogni ciclo, comunicate al robot tramite un topic personalizzato. PostBot si sposta verso la pallina, "la raccoglie" e la consegna alla scatola del colore corrispondente. Quando tutte le scatole sono piene, il sistema si resetta riposizionando tutte le scatole in maniera casuale. Pronto ad effettuare un nuovo giro di consegne!
-
----
-
-## Requisiti👾
-
-- **ROS**: Per la gestione di nodi, topic, servizi e parametri.
-- **Gazebo**: Per la simulazione dell'ambiente con palline e scatole posizionate randomicamente.
-- **RVIZ**: Per monitorare in tempo reale navigazione e stato del robot.
-- **Navigation Stack di ROS**: Per il movimento autonomo.
-- **TurtleBot3**: Il robot autonomo peer la consegna delle palline.
+The simulated world spawn marbles in different points of the map at every cicle and this position is communicated to the bot through personalized messages. Once the message arrives, the bot goes in the communicated marble position to "collect" it and delivers it to the color-corresponding box. When all the boxes are full, the system reset the world by spawning new boxes in new positions. The bot is now ready for new deliveries!
 
 ---
 
-## Componenti Principali🕹️
+## Requirements👾
 
-### Topics Principali
-- `/current ball`: Posizione e colore della pallina attuale.
-- `/box status`: Stato delle scatole (posizioni, colore e se piene o meno).
-- `/box goal`: Obiettivo del robot (coordinate della scatola da raggiungere per la consegna).
-
-### Messaggi Personalizzati
-- `BallInfo.msg`: Colore e posizione della pallina.
-- `BoxStatus.msg`: Stato, colore e posizioni delle scatole.
-- `BoxGoal.msg`: Obiettivo della consegna.
-
-### Servizi
-- `/spawn ball`: Genera una nuova pallina.
-- `/reset boxes`: Svuota e riposiziona le scatole.
-
-### Parametri
-- `Velocità del Robot`.
-- `Posizioni iniziali delle Scatole`.
+- **ROS**: For managing nodes, topics, custom messages, services and parameters.
+- **Gazebo**: For simulating the world by spawning randomly marbles and boxes.
+- **RVIZ**: For monitoring in real-time navigation and robot status.
+- **ROS Navigation Stack**: For autonomous movement.
+- **TurtleBot3**: The autonomous robot that has to deliver marbles.
 
 ---
 
-## Flusso Operativo🖲️
+## Core Components🕹️
 
-1. La pallina viene generata tramite `/spawn ball` e il robot ne riceve le informazioni tramite `/current ball`.  
-2. Determina l'obiettivo e si sposta verso di esso usando `/box goal`.  
-3. Consegna la pallina alla scatola corretta e aggiorna lo stato della scatola su `/box status`.  
-4. Quando tutte le scatole sono piene, attiva il servizio `/reset boxes` e riparte.
+### Nodes
+- `Managing Deliveries Node`: For managing deliveries by communicating the `Box Goal` and updating the boxes status.
+- `Spawned Marble Node`: For managing the position of the newly-spawned marble and to communicate its position.
+- `Navigation Node`: Receive the delivery goal and plans the path the robot has to follow through **ROS Navigation Stack**.
+
+### Topics
+- `/current marble`: Communicates position and color of the newly-spawned marble.
+- `/box status`: Communicates position, color and status of the boxes.
+- `/box goal`: Communicates coordinates of the box goal.
+
+### Custom Messages
+- `MarbleInfo.msg`: Info about color and position of the spawned marble.
+- `BoxStatus.msg`: Info about status, color and box coordinates.
+- `BoxGoal.msg`: Coordinates of box goal.
+
+### Services
+- `/spawn marble`: Generates a new marble.
+- `/reset boxes`: Reset boxed and spawn them in new random positions.
+
+### Parameters
+- `Robot Settings`.
+- `Inital Coordinates of the boxes`.
 
 ---
 
-## Come Installare
+## How PostBot works?🖲️
+
+1. The marble is spwaned thanks to `/spawn marble` service and the bot receives all info through `/current marble`.  
+2. Now that it knows the box it has to deliver, it moves towards the coordinates taken from `/box goal`.  
+3. It delivers the marble in the color-assigned box and updates the box status on `/box status`.  
+4. When all the boxes are full, it activates `/reset boxes` and the cycle begins again.
+
+---
+
+## How To Install
 (ancora da completare!)
