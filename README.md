@@ -30,27 +30,27 @@ The simulated world spawns marbles in different points of the map at every cycle
 
 ## How PostBot Works?🖲️
 
-1. **Initialization**:
+**Initialization**:
    - During the system startup, the robot is spawned at an initial position defined by the parameter `robot_initial_pose`.
    - The nodes are initialized, and the system gets ready to spawn marbles and boxes.
 
-2. **Marble Spawning**:
+**Marble Spawning**:
    - The `Spawned Marble Node` uses the `/spawn marble` service to generate a new marble in a random position.
    - The position and color of the marble are published on the `/current marble` topic.
 
-3. **Delivery Planning**:
+**Delivery Planning**:
    - The `Managing Deliveries Node` receives the marble's information and determines the corresponding box for delivery.
    - It retrieves the box coordinates and publishes them on the `/box goal` topic.
 
-4. **Robot Navigation**:
+**Robot Navigation**:
    - The `Navigation Node` receives the goal coordinates from `/box goal` and uses the **ROS Navigation Stack** to plan a path.
    - The robot moves autonomously to the marble position, "collects" it, and then navigates to the box.
 
-5. **Delivery Completion**:
+**Delivery Completion**:
    - Once the marble is delivered, the `Managing Deliveries Node` updates the box's status on the `/box status` topic.
 
-6. **Cycle Reset**:
-   - When all boxes are full:
+**Cycle Reset**:
+   When all boxes are full:
      - The `Managing Deliveries Node` activates the `/reset boxes` service, resetting the boxes' positions.
      - The robot is reset to its predefined `robot_initial_pose`, restarting the delivery cycle.
 
