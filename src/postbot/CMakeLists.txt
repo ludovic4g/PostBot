@@ -11,6 +11,9 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   std_msgs
+  geometry_msgs
+  nav_msgs
+  sensor_msgs
   message_generation
 )
 
@@ -50,7 +53,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## Generate messages in the 'msg' folder
  add_message_files(
    FILES
-   BallInfo.msg
+   MarbleInfo.msg
    BoxInfo.msg
    BoxGoal.msg
  )
@@ -59,7 +62,7 @@ find_package(catkin REQUIRED COMPONENTS
  add_service_files(
    FILES
    reset_boxes.srv
-   spawn_ball.srv
+   spawn_marble.srv
  )
 
 ## Generate actions in the 'action' folder
@@ -73,6 +76,9 @@ find_package(catkin REQUIRED COMPONENTS
  generate_messages(
    DEPENDENCIES
    std_msgs
+   geometry_msgs
+   nav_msgs
+   sensor_msgs
  )
 
 ################################################
@@ -107,7 +113,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES postbot
-  CATKIN_DEPENDS roscpp rospy std_msgs message_runtime
+  CATKIN_DEPENDS roscpp rospy std_msgs message_runtime geometry_msgs nav_msgs sensor_msgs
 #  DEPENDS system_lib
 )
 

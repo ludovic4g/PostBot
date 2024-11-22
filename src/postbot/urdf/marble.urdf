@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<model name="marble">
+    <link name="marble link">
+        <visual name="visual link">
+            <geometry>
+                <sphere>
+                    <radius>0.05</radius>
+                </sphere>
+            </geometry>
+            <material>
+                <ambient>1 0 0 1<ambient>
+            </material>
+        </visual>
+
+    </link>
+
+</model>
