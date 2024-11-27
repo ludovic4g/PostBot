@@ -1,8 +1,9 @@
+#!/usr/bin/python3
 import rospy
 from postbot.srv import spawn_marble, spawn_marbleResponse
 
 def handle_spawn_marble(req):
-    #only the result of the services needs to be sent
+    # only the result of the services needs to be sent
     success= True
 
     return spawn_marbleResponse(done=success)
