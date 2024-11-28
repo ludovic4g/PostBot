@@ -9,7 +9,7 @@ spawn = False
 
 rospy.init_node("spawn_marble_node", anonymous=False)
 
-    # Publish to topic /current marble the color and position of the marble
+# Publish to topic /current marble the color and position of the marble
 rospy.loginfo("Waiting for /spawn_marble")
 pub = rospy.Publisher('/current_marble', MarbleInfo, queue_size=10)
 rospy.wait_for_service('/spawn_marble')

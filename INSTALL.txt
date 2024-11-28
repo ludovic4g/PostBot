@@ -1,0 +1,19 @@
+# Set up roscore environment
+`roscore`
+
+# Get into the working folder
+`cd postbot`
+
+# To be sure it works fine
+`catkin_make`
+`source devel/setup.sh`
+
+# Start the init script by initializing the first node
+`rosrun postbot init_system.py`
+
+# Spawn Marble server to initializing spawning
+`rosrun postbot spawn_marble_server.py`
+`rosrun postbot spawn_marble.py`
+
+# Run box manager script
+`rosrun postbot managing_boxes.py`

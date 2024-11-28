@@ -75,8 +75,8 @@ def init_boxes():
     rospy.loginfo("Prima del while")
     box = BoxInfo()
     box.colors =  ['red', 'blue', 'green', 'yellow', 'white', 'purple']
-    box.x = [0, 0, 0, 0, 0 ,0]
-    box.y = [0, 0, 0, 0, 0 ,0]
+    box.x = [1, 2, 3, 0, 0 ,0]
+    box.y = [1, 1, 1, 1, 2 ,3]
     box.status = [0, 0, 0, 0, 0 ,0]
 
     rospy.loginfo(f"box value: {box}")
