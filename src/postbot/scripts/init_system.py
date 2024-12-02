@@ -4,6 +4,7 @@ import random
 from geometry_msgs.msg import Pose
 from gazebo_msgs.srv import SpawnModel
 from postbot.msg import BoxInfo
+from postbot.srv import reset_boxes, reset_boxesResponse
 
 
 def spawn_robot():
@@ -96,14 +97,20 @@ def init_boxes():
             break
         
 
-
+def handle_reset_boxes(req):
+    init_boxes()
+    rospy.loginfo("Reset service call arrived, done = true")
+    return reset_boxesResponse(done=True)
 
 
 if __name__ == "__main__":
 
     rospy.init_node("init_spawn", anonymous=False)
-    rospy.loginfo("Before spawning call")
+    rospy.loginfo("Initializing system")
     # spawn_robot_boxes()
+
+    rospy.Service('reset_boxes', reset_boxes, handle_reset_boxes)
+    rospy.loginfo("Ready to reset boxes")
 
     init_boxes()
 
