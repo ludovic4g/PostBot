@@ -5,7 +5,7 @@ from threading import Condition
 
 flag = False
 box_flag = False
-sequencing = Condition() # Threading for the right sequencing of the callbacks
+sequencing = Condition() # Thread for the right sequencing of callbacks
 rospy.init_node('managing_boxes', anonymous=False)
 
 rate = rospy.Rate(1)
@@ -14,7 +14,6 @@ new_box_color = ' '
 colors = ['red', 'blue', 'green', 'yellow', 'white', 'purple']
 box_goal = None
 
-#rospy.loginfo("Prima callback 1")
 
 def callback(data):
     global new_box_color, flag

@@ -9,5 +9,7 @@
     <node name="spawn_marble_server" pkg= "postbot" type="spawn_marble_server.py" output="screen"/>
 
     <node name="spawn_marble" pkg= "postbot" type="spawn_marble.py" output="screen"/>
-    
+
+    <node name="navigation" pkg= "postbot" type="navigation_node.py" output="screen"/> 
+
 </launch>
