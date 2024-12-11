@@ -52,6 +52,9 @@ Visualization Manager:
       Show Axes: true
       Show Names: true
       Update Interval: 0
+    - Class: rviz/RobotModel
+      Enabled: true
+      Name: Robot Model
     - Class: rviz/Marker
       Enabled: true
       Marker Topic: /robot_marker
@@ -69,8 +72,21 @@ Visualization Manager:
       Queue Size: 10
     - Class: rviz/Path
       Enabled: true
-      Name: Robot Path
+      Name: Global Path
       Topic: /move_base/GlobalPlanner/plan
+    - Class: rviz/Map
+      Enabled: true
+      Name: Map
+      Topic: /map
+      Alpha: 0.7
+    - Class: rviz/Costmap
+      Enabled: true
+      Name: Global Costmap
+      Topic: /move_base/global_costmap/costmap
+    - Class: rviz/Costmap
+      Enabled: true
+      Name: Local Costmap
+      Topic: /move_base/local_costmap/costmap
   Global Options:
     Background Color: 48; 48; 48
     Default Light: true

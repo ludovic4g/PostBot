@@ -1,12 +1,19 @@
 <launch>
+    <rosparam file="$(find postbot)/config/robot_params.yaml" command="load"/>
 
-    <rosparam file ="$(find postbot)/config/robot_par.yaml" command = "load"/>
+    <node pkg="map_server" type="map_server" name="map_server" args="$(find postbot)/maps/testmap.yaml"/>
 
-   <!-- <include file ="$(find postbot)/launch/gazebo.launch">
-        <arg name="world_file" default ="$(find postbot)/worlds/postbot_world.world"/>
-    </include>-->
+    <node pkg="tf2_ros" type="static_transform_publisher" name="world_to_map" args="0 0 0 0 0 0 1 world map"/>
 
-    <include file ="$(find postbot)/launch/view_robot.launch"/>
+    <!-- Pubblicazione dello stato del robot -->
+    <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
+        <param name="robot_description" command="cat $(find postbot)/urdf/postbot.urdf"/>
+    </node>
 
-    <include file ="$(find postbot)/launch/nodes.launch"/>
+    <!-- Configurazione Move Base -->
+    <include file="$(find postbot)/launch/move_base.launch"/>
+
+    <node pkg="rviz" type="rviz" name="rviz" args="-d $(find postbot)/rviz/postbot.rviz"/>
+
+    <include file="$(find postbot)/launch/nodes.launch"/>
 </launch>
