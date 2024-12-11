@@ -11,9 +11,20 @@ robotpub = None
 def spawn_robot():
     global robotpub
     robot_name = "postbot"
-
+    # Assicurarsi che robot_initial_pose sia caricato via rosparam prima del lancio
+    # Esempio in robot_par.yaml:
+    # robot_initial_pose:
+    #   x: 0.5
+    #   y: 0.5
+    #   z: 0.25
     init_pose = rospy.get_param('robot_initial_pose', {'x':0.5, 'y':0.5, 'z':0.25})
+    model_path = rospy.get_param('model_path', '/home/user/postbot/src/postbot/urdf/postbot.urdf')
 
+    with open(model_path, 'r') as urdf_file:
+        robot_urdf = urdf_file.read()
+        rospy.loginfo("Urdf Model read")
+
+    rospy.loginfo("Spawning Robot Marker in Rviz")
 
     marker = Marker()
     marker.header.frame_id = "map"
@@ -71,11 +82,12 @@ def spawn_boxes(box):
     boxpub.publish(boxes)
 
 def init_boxes():
-    pub = rospy.Publisher('/box_status', BoxInfo, queue_size=10) # deve essere latchata per far si che la generazione di biglie non si blocca
+    pub = rospy.Publisher('/box_status', BoxInfo, queue_size=10)
     rospy.sleep(5)
 
     box = BoxInfo()
     box.colors =  ['red', 'blue', 'green', 'yellow', 'white', 'purple']
+    # Posizioni iniziali di esempio, personalizzare se necessario
     box.x = [4, 4, 4, -4, -4, -4]
     box.y = [1, 0, -1, 1, 0, -1]
     box.status = [0, 0, 0, 0, 0, 0]
@@ -93,7 +105,7 @@ def init_boxes():
 
 def handle_reset_boxes(req):
     init_boxes()
-    rospy.loginfo("Resetted boxes")
+    rospy.loginfo("Reset service call arrived, done = true")
     return reset_boxesResponse(done=True)
 
 if __name__ == "__main__":
@@ -102,5 +114,6 @@ if __name__ == "__main__":
     robotpub = rospy.Publisher('/robot_marker', Marker, queue_size=10)
     boxpub = rospy.Publisher('/box_marker', MarkerArray, queue_size=10)
     rospy.Service('reset_boxes', reset_boxes, handle_reset_boxes)
+    rospy.loginfo("Ready to reset boxes")
     init_boxes()
     rospy.spin()

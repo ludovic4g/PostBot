@@ -37,7 +37,7 @@ def marble_publisher(marble):
 
     marker.color.a = 1.0
     marblepub.publish(marker)
-    rospy.loginfo(f"Spawned marble at: ({marble.x}, {marble.y}) with color: {marble.color}")
+    rospy.loginfo(f"Spawned Marble ({marble.x}, {marble.y}) {marble.color}")
 
 rospy.init_node("spawn_marble_node", anonymous=False)
 pub = rospy.Publisher('/current_marble', MarbleInfo, queue_size=10)

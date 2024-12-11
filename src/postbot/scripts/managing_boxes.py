@@ -40,7 +40,6 @@ rate = rospy.Rate(1)
 while not rospy.is_shutdown():
     with sequencing:
         if flag and box_flag:
-            rospy.loginfo(f"Box goal: {box_goal.x} {box_goal.y} ")
             pub.publish(box_goal)
             flag = False
             box_flag = False

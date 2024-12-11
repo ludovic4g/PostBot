@@ -35,6 +35,7 @@ def update_box_marker(i, box_status):
         marker.scale.z = 0.5
 
         if j == i:
+            # Box piena = grigio
             marker.color.r = 0.5; marker.color.g = 0.5; marker.color.b = 0.5
         else:
             color = box_status.colors[j]
@@ -57,6 +58,7 @@ def update_box_marker(i, box_status):
     boxpub.publish(marker_array)
 
 def navigate_to_goal(x, y):
+    # Pubblica un goal per move_base
     goal_pub = rospy.Publisher('/move_base_simple/goal', PoseStamped, queue_size=10)
     rospy.sleep(1)
     goal = PoseStamped()
@@ -96,8 +98,6 @@ def box_status_callback(data):
     box_status = data
     second_flag = True
 
-
-rospy.loginfo("Sono qui")
 rospy.Subscriber('/box_goal', BoxGoal, box_goal_callback)
 rospy.Subscriber('/box_status', BoxInfo, box_status_callback)
 
@@ -105,6 +105,8 @@ robotpub = rospy.Publisher("/robot_marker", Marker, queue_size=10)
 pub = rospy.Publisher("/box_status", BoxInfo, queue_size=10)
 boxpub = rospy.Publisher('/box_marker', MarkerArray, queue_size=10)
 
+rospy.wait_for_service('/reset_boxes')
+reset_boxes_service = rospy.ServiceProxy('/reset_boxes', reset_boxes)
 
 while not rospy.is_shutdown():
     if flag and second_flag:
@@ -112,15 +114,18 @@ while not rospy.is_shutdown():
         i = colors.index(box_color)
         goal_x = box_status.x[i]
         goal_y = box_status.y[i]
-        rospy.loginfo("Navigation node here")
+
+        # Aggiorna posizione robot (marker)
         robot_marker(goal_x, goal_y)
+
+        # Naviga verso la scatola con move_base
         navigate_to_goal(goal_x, goal_y)
+
+        # Aggiorna stato scatola
         current_status[i] = 1
         empty_box = [index for index, value in enumerate(current_status) if value == 0]
 
         if len(empty_box) == 0:
-            rospy.wait_for_service('/reset_boxes')
-            reset_boxes_service = rospy.ServiceProxy('/reset_boxes', reset_boxes)
             response = reset_boxes_service()
             if response.done:
                 rospy.loginfo("Reset service sent successfully")
@@ -128,7 +133,6 @@ while not rospy.is_shutdown():
             box_status.status = current_status
             pub.publish(box_status)
             update_box_marker(i, box_status)
-            rospy.loginfo("Boxes updated")
             flag = False
             second_flag = False
     rospy.sleep(5)
