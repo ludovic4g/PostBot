@@ -6,84 +6,85 @@ from visualization_msgs.msg import Marker, MarkerArray
 from turtlesim.srv import TeleportAbsolute
 from geometry_msgs.msg import PoseStamped
 
+# Inizializza il nodo
 rospy.init_node("navigation", anonymous=False)
 box_color = ' '
 rate = rospy.Rate(1)
 boxpub = None
 robotpub = None
 
-# IL ROBOT DEVE CONSEGNARE LA PALLINA ALLA BOX CON LO STESSO COLORE
-# FINO A QUANDO NON HA CONSEGNATO NON PUO' RITORNARE ALLO SPAWN MARBLE PER LA NUOVA PALLINA
-
-# The node has to get the box goal message first and then it searches for the box status
-flag = False
-second_flag = False
+# Colori delle scatole
 colors = ['red', 'blue', 'green', 'yellow', 'white', 'purple']
 
-def update_box_marker(i, x, y, boxes):
+# Flags per sincronizzare i messaggi
+flag = False
+second_flag = False
 
-    markers = MarkerArray()
+def update_box_marker(i, x, y, box_status):
     global boxpub
-    for j in range(len(boxes.colors)):
-        box = Marker()
-        box.header.frame_id = "world" #?
-        box.id = j
-        box.ns ="boxes"
-        box.type = Marker.CUBE
-        box.action = Marker.ADD
-        box.pose.position.x = boxes.x[j]
-        box.pose.position.y = boxes.y[j]
-        box.pose.position.z = 0.25
-        box.scale.x = 0.5
-        box.scale.y = 0.5
-        box.scale.z = 0.5
 
-        if j==i:
-            #colore grigio perchè usato
-            box.color.r = 0.5
-            box.color.g = 0.5
-            box.color.b = 0.5
-        else:
-            color = boxes.colors[j]
+    # Crea un nuovo MarkerArray per rappresentare tutte le scatole
+    marker_array = MarkerArray()
+
+    # Itera su tutte le scatole definite in box_status
+    for j in range(len(box_status.colors)):
+        marker = Marker()
+        marker.header.frame_id = "world"
+        marker.id = j
+        marker.ns = "boxes"
+        marker.type = Marker.CUBE
+        marker.action = Marker.ADD
+
+        # Posizione della scatola
+        marker.pose.position.x = box_status.x[j]
+        marker.pose.position.y = box_status.y[j]
+        marker.pose.position.z = 0.25
+        marker.scale.x = 0.5
+        marker.scale.y = 0.5
+        marker.scale.z = 0.5
+
+        # Colore basato sullo stato della scatola
+        if j == i:  # Se è la scatola da aggiornare
+            marker.color.r = 0.5
+            marker.color.g = 0.5
+            marker.color.b = 0.5  # Grigio per scatola piena
+        else:  # Altrimenti usa il colore originale
+            color = box_status.colors[j]
             if color == 'red':
-                box.color.r = 1.0
-                box.color.g = 0.0
-                box.color.b = 0.0
-
+                marker.color.r = 1.0
+                marker.color.g = 0.0
+                marker.color.b = 0.0
             elif color == 'blue':
-                box.color.r = 0.0
-                box.color.g = 0.0
-                box.color.b = 1.0
-            
+                marker.color.r = 0.0
+                marker.color.g = 0.0
+                marker.color.b = 1.0
             elif color == 'green':
-                box.color.r = 0.0
-                box.color.g = 1.0
-                box.color.b = 0.0
-        
-            elif color == 'white':
-                box.color.r = 1.0
-                box.color.g = 1.0
-                box.color.b = 1.0
-
-            elif color == 'purple':
-                box.color.r = 0.5
-                box.color.g = 0.0
-                box.color.b = 0.5
-
+                marker.color.r = 0.0
+                marker.color.g = 1.0
+                marker.color.b = 0.0
             elif color == 'yellow':
-                box.color.r = 1.0
-                box.color.g = 1.0
-                box.color.b = 0.0
-        
-        
-        
-        box.color.a = 1.0
-        markers.markers.append(box)
+                marker.color.r = 1.0
+                marker.color.g = 1.0
+                marker.color.b = 0.0
+            elif color == 'white':
+                marker.color.r = 1.0
+                marker.color.g = 1.0
+                marker.color.b = 1.0
+            elif color == 'purple':
+                marker.color.r = 0.5
+                marker.color.g = 0.0
+                marker.color.b = 0.5
 
-    boxpub.publish(markers)
+        # Tutte le scatole devono essere visibili
+        marker.color.a = 1.0
 
-    rospy.loginfo("Boxes updated")
-     
+        # Aggiungi il marker al MarkerArray
+        marker_array.markers.append(marker)
+
+    # Pubblica il MarkerArray aggiornato
+    boxpub.publish(marker_array)
+    rospy.loginfo(f"Updated box {i} to gray (full) in MarkerArray")
+
 def navigate_to_goal(x, y):
     rospy.loginfo("Navigating to box goal:")
     pub = rospy.Publisher('/move_base_simple/goal', PoseStamped, queue_size=10)
@@ -94,28 +95,26 @@ def navigate_to_goal(x, y):
     goal.pose.orientation.w = 1.0
     pub.publish(goal)
 
-    
-
-
-
 def robot_marker(x, y):
     global robotpub
     marker = Marker()
     marker.header.frame_id = "world"
-    marker.id="0"
-    marker.type= Marker.SPHERE
+    marker.id = 0
+    marker.ns = "robot"
+    marker.type = Marker.SPHERE
     marker.action = Marker.ADD
     marker.pose.position.x = x
     marker.pose.position.y = y
     marker.pose.position.z = 0.1
+    marker.scale.x = 0.5
+    marker.scale.y = 0.5
+    marker.scale.z = 0.5
     marker.color.r = 0.0
     marker.color.g = 1.0
     marker.color.b = 0.0
     marker.color.a = 1.0
     robotpub.publish(marker)
     rospy.loginfo("Published robot marker")
-    
-    
 
 def callback(data):
     global flag, box_color
@@ -123,10 +122,7 @@ def callback(data):
     flag = True
     rospy.loginfo(f"Box full is the color: {box_color}")
 
-#assigned_color = colors.index(box_color) #index of the position
-
 box_status = BoxInfo()
-
 rospy.Subscriber('/box_goal', BoxGoal, callback)
 
 def box_status_callback(data):
@@ -134,12 +130,10 @@ def box_status_callback(data):
     box_status = data
     second_flag = True
 
-
 rospy.Subscriber('/box_status', BoxInfo, box_status_callback)
 
 robotpub = rospy.Publisher("/robot_marker", Marker, queue_size=10)
 pub = rospy.Publisher("/box_status", BoxInfo, queue_size=10)
-
 boxpub = rospy.Publisher('/box_marker', MarkerArray, queue_size=10)
 
 rospy.wait_for_service('/reset_boxes')
@@ -147,35 +141,38 @@ reset_boxes_service = rospy.ServiceProxy('/reset_boxes', reset_boxes)
 
 while not rospy.is_shutdown():
     if flag and second_flag:
-            rospy.loginfo("Updating boxes status:")
-            current_status = list(box_status.status)
-            i = colors.index(box_color)
-            goal_x = box_status.x[i]
-            goal_y = box_status.y[i]
+        rospy.loginfo("Updating boxes status:")
+        current_status = list(box_status.status)
+        i = colors.index(box_color)
+        goal_x = box_status.x[i]
+        goal_y = box_status.y[i]
 
-            
-            navigate_to_goal(goal_x,goal_y)
-            current_status[i] = 1
-            rospy.loginfo(f"Current box status: {current_status}")
-            empty_box = [index for index, value in enumerate(current_status) if value == 0]
-            rospy.loginfo(f"Number of available boxes: {len(empty_box)}")
-            if len(empty_box) == 0:
-                try:
-                     response = reset_boxes_service()
-                     if response.done:
-                          rospy.loginfo("Reset service sent successfully")
-                          #break
-                except rospy.ServiceException as e:
-                    rospy.logerr("Service call failed")
-            else:
-                box_status.status = current_status
-                pub.publish(box_status)
-                update_box_marker(i, goal_x, goal_y, box_status)
-                flag = False
-                second_flag = False
-                rospy.loginfo("Updated boxes status:")
+        # Teletrasporta Turtlesim
+        rospy.wait_for_service('/turtle1/teleport_absolute')
+        teleport_service = rospy.ServiceProxy('/turtle1/teleport_absolute', TeleportAbsolute)
+        teleport_service(goal_x, goal_y, 0)
 
+        # Aggiorna la posizione del robot in RViz
+        robot_marker(goal_x, goal_y)
+
+        # Naviga verso la scatola
+        navigate_to_goal(goal_x, goal_y)
+        current_status[i] = 1
+        rospy.loginfo(f"Current box status: {current_status}")
+        empty_box = [index for index, value in enumerate(current_status) if value == 0]
+        rospy.loginfo(f"Number of available boxes: {len(empty_box)}")
+        if len(empty_box) == 0:
+            try:
+                response = reset_boxes_service()
+                if response.done:
+                    rospy.loginfo("Reset service sent successfully")
+            except rospy.ServiceException as e:
+                rospy.logerr("Service call failed")
+        else:
+            box_status.status = current_status
+            pub.publish(box_status)
+            update_box_marker(i, goal_x, goal_y, box_status)
+            flag = False
+            second_flag = False
+            rospy.loginfo("Updated boxes status:")
     rospy.sleep(5)
-
-
-
