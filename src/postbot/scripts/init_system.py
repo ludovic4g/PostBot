@@ -1,11 +1,8 @@
 #!/usr/bin/python3
 import rospy
-import random
 from postbot.msg import BoxInfo
 from postbot.srv import reset_boxes, reset_boxesResponse
 from visualization_msgs.msg import Marker, MarkerArray
-
-boxpub = None
 
 def spawn_boxes(box):
     global boxpub
@@ -14,6 +11,7 @@ def spawn_boxes(box):
     for i, (x, y, color) in enumerate(zip(box.x, box.y, box.colors)):
         marker = Marker()
         marker.header.frame_id = "world"  # 'world' frame per Turtlesim
+        marker.header.stamp = rospy.Time.now()
         marker.ns = "boxes"
         marker.id = i
         marker.type = Marker.CUBE
@@ -58,7 +56,7 @@ def spawn_boxes(box):
 
 def init_boxes():
     pub = rospy.Publisher('/box_status', BoxInfo, queue_size=10)
-    rospy.sleep(5)
+    rospy.sleep(1)  # Adjust sleep to ensure publisher is ready
 
     box = BoxInfo()
     box.colors =  ['red', 'blue', 'green', 'yellow', 'white', 'purple']
@@ -70,13 +68,9 @@ def init_boxes():
 
     spawn_boxes(box)
 
-    spawn = False
-    while not rospy.is_shutdown():
-        if not spawn:
-            pub.publish(box)
-            spawn = True
-        else:
-            break
+    # Publish the initial box status
+    rospy.sleep(1)  # Allow marker to be published before publishing box status
+    pub.publish(box)
 
 def handle_reset_boxes(req):
     init_boxes()

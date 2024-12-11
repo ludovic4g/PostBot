@@ -126,10 +126,13 @@ def manage_movement():
                 # Verificare se tutte le scatole sono piene
                 if all(status >= 1 for status in box_status.status):
                     rospy.loginfo("Tutte le scatole sono piene. Reset in corso...")
-                    response = reset_boxes_service()
-                    if response.done:
-                        rospy.loginfo("Reset delle scatole completato.")
-                        current_state = "IDLE"
+                    try:
+                        response = reset_boxes_service()
+                        if response.done:
+                            rospy.loginfo("Reset delle scatole completato.")
+                            current_state = "IDLE"
+                    except rospy.ServiceException as e:
+                        rospy.logerr(f"Service call failed: {e}")
                 else:
                     current_state = "IDLE"
     elif current_state == "IDLE":
