@@ -119,7 +119,9 @@ def manage_movement():
                 # Aggiungere la marble alla scatola
                 add_marble_to_box(current_marble, box_index)
                 # Incrementare lo stato della scatola
-                box_status.status[box_index] += 1
+                current_boxes = list(box_status.status)
+                current_boxes[box_index] = 1
+                box_status.status = current_boxes
                 box_status_pub.publish(box_status)
                 # Programmare la rimozione della marble dalla scatola dopo 5 secondi
                 rospy.Timer(rospy.Duration(5), lambda event: remove_marble_from_box(box_index), oneshot=True)
