@@ -123,12 +123,11 @@ def manage_movement():
                 current_boxes[box_index] = 1
                 box_status.status = current_boxes
                 box_status_pub.publish(box_status)
-                # Programmare la rimozione della marble dalla scatola dopo 5 secondi
-                rospy.Timer(rospy.Duration(5), lambda event: remove_marble_from_box(current_marble.color), oneshot=True)
+                remove_marble_from_box(current_marble.color)
                 # Resettare la marble corrente
                 current_marble = None
                 # Verificare se tutte le scatole sono piene
-                if all(status >= 1 for status in box_status.status):
+                if all(status == 1 for status in box_status.status):
                     rospy.loginfo("Tutte le scatole sono piene. Reset in corso...")
                     try:
                         response = reset_boxes_service()
@@ -146,20 +145,21 @@ def remove_marble_marker(marble):
     # Rimuovere la marble dalla sua posizione originale
     marker_remove = Marker()
     marker_remove.header.frame_id = "world"
-    marker_remove.header.stamp = rospy.Time.now()
+    # marker_remove.header.stamp = rospy.Time.now()
     marker_remove.ns = "marbles"
     if marble.color == 'red':
-        marker_remove.id = 10 
-    if marble.color == 'blue':
         marker_remove.id = 11 
-    if marble.color == 'green':
+    if marble.color == 'blue':
         marker_remove.id = 12 
-    if marble.color == 'white':
+    if marble.color == 'green':
         marker_remove.id = 13 
-    if marble.color == 'purple':
+    if marble.color == 'white':
         marker_remove.id = 14 
+    if marble.color == 'purple':
+        marker_remove.id = 15 
     if marble.color == 'yellow':
-        marker_remove.id = 15
+        marker_remove.id = 16
+    rospy.loginfo(f"Id della biglia da levare: {marker_remove.id}")
     marker_remove.action = Marker.DELETE
     marble_marker_pub.publish(marker_remove)
     rospy.loginfo(f"Marble {marble.color} rimossa dalla posizione ({marble.x}, {marble.y})")

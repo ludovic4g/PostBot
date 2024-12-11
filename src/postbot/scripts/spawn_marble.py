@@ -12,6 +12,7 @@ def marble_publisher(marble):
     marker = Marker()
     marker.header.frame_id = "world"  # 'world' frame per Turtlesim
     marker.header.stamp = rospy.Time.now()
+    marker.ns = "marbles"
     marker.type = Marker.SPHERE
     marker.action = Marker.ADD
     marker.pose.position.x = marble.x
