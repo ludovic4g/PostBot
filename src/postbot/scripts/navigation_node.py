@@ -12,7 +12,6 @@ rospy.init_node("navigation", anonymous=False)
 
 # Publisher per i marker e per i comandi di velocità del turtle
 robot_marker_pub = rospy.Publisher("/robot_marker", Marker, queue_size=10)
-box_marker_pub = rospy.Publisher('/box_marker', MarkerArray, queue_size=10)
 cmd_vel_pub = rospy.Publisher('/turtle1/cmd_vel', Twist, queue_size=10)
 box_status_pub = rospy.Publisher("/box_status", BoxInfo, queue_size=10)
 
@@ -27,7 +26,7 @@ current_state = "IDLE"  # Stati: IDLE, MOVING_TO_MARBLE, MOVING_TO_BOX
 box_goal = None
 box_status = BoxInfo()
 colors = ['red', 'blue', 'green', 'yellow', 'white', 'purple']
-tolerance = 0.1  # Tolleranza per raggiungere il goal
+tolerance = 0.5  # Tolleranza per raggiungere il goal (adattata per Turtlesim)
 
 def pose_callback(data):
     global current_pose
@@ -40,11 +39,11 @@ def box_goal_callback(data):
     # Se siamo IDLE, iniziamo a muoverci verso la pallina
     if current_state == "IDLE":
         goal_pose = MarbleInfo()
-        goal_pose.x = box_goal.x
-        goal_pose.y = box_goal.y
-        goal_pose.color = box_goal.color
+        goal_pose.x = data.x
+        goal_pose.y = data.y
+        goal_pose.color = data.color
         current_state = "MOVING_TO_MARBLE"
-        rospy.loginfo(f"Nuovo obiettivo: Pallina {box_goal.color} a ({goal_pose.x}, {goal_pose.y})")
+        rospy.loginfo(f"Nuovo obiettivo: Pallina {goal_pose.color} a ({goal_pose.x}, {goal_pose.y})")
 
 def box_status_callback(data):
     global box_status
@@ -52,7 +51,7 @@ def box_status_callback(data):
 
 def update_robot_marker(pose):
     marker = Marker()
-    marker.header.frame_id = "map"
+    marker.header.frame_id = "world"  # Cambiato da "map" a "world" per Turtlesim
     marker.header.stamp = rospy.Time.now()
     marker.id = 0
     marker.type = Marker.SPHERE
@@ -60,6 +59,7 @@ def update_robot_marker(pose):
     marker.pose.position.x = pose.x
     marker.pose.position.y = pose.y
     marker.pose.position.z = 0.1
+    marker.pose.orientation.w = 1.0  # Orientamento neutro
     marker.scale.x = 0.5
     marker.scale.y = 0.5
     marker.scale.z = 0.5
@@ -79,12 +79,13 @@ def move_turtle(target_x, target_y):
     # Normalizzazione dell'angolo_diff tra -pi e pi
     angle_diff = math.atan2(math.sin(angle_diff), math.cos(angle_diff))
 
-    # Se non siamo diretti verso il target, ruotiamo
+    # Controllo proporzionale per l'orientamento
     if abs(angle_diff) > 0.05:
         twist.angular.z = 2.0 * angle_diff
+        twist.linear.x = 0.0
     else:
         twist.angular.z = 0.0
-        # Se siamo orientati correttamente, muoviamoci avanti
+        # Controllo proporzionale per la distanza
         if distance > tolerance:
             twist.linear.x = 1.5 * distance
         else:
@@ -110,10 +111,10 @@ def manage_movement():
                 rospy.loginfo(f"Pallina {goal_pose.color} raccolta a ({goal_pose.x}, {goal_pose.y})")
                 # Aggiornare lo stato della scatola corrispondente
                 box_index = colors.index(goal_pose.color)
-                box_status.status[box_index] += 1
-                box_status_pub.publish(box_status)
+                if box_status.status[box_index] < 1:  # Assicurarsi di non superare il limite
+                    box_status.status[box_index] += 1
+                    box_status_pub.publish(box_status)
                 # Passare allo stato di movimento verso la scatola
-                box_goal = None  # Reset
                 current_state = "MOVING_TO_BOX"
     elif current_state == "MOVING_TO_BOX":
         if box_goal:

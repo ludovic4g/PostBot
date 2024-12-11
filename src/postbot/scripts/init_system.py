@@ -6,33 +6,6 @@ from postbot.srv import reset_boxes, reset_boxesResponse
 from visualization_msgs.msg import Marker, MarkerArray
 
 boxpub = None
-robotpub = None
-
-def spawn_robot():
-    global robotpub
-    robot_name = "postbot"
-    init_pose = rospy.get_param('robot_initial_pose', 'src/postbot/config/robot_par.yaml')
-
-    rospy.loginfo("Spawning Robot Marker in Rviz")
-
-    marker = Marker()
-    marker.header.frame_id = "map"
-    marker.id = 0
-    marker.type = Marker.CUBE
-    marker.action = Marker.ADD
-    marker.pose.position.x = init_pose['x']
-    marker.pose.position.y = init_pose['y']
-    marker.pose.position.z = init_pose['z']
-    marker.scale.x = 0.5
-    marker.scale.y = 0.5
-    marker.scale.z = 0.5
-    marker.color.r = 0.0
-    marker.color.g = 1.0
-    marker.color.b = 0.0
-    marker.color.a = 1.0
-    robotpub.publish(marker)
-
-    rospy.loginfo("Spawned Robot Marker in RViz")
 
 def spawn_boxes(box):
     global boxpub
@@ -40,7 +13,7 @@ def spawn_boxes(box):
 
     for i, (x, y, color) in enumerate(zip(box.x, box.y, box.colors)):
         marker = Marker()
-        marker.header.frame_id = "map"
+        marker.header.frame_id = "world"  # Cambiato da "map" a "world" per Turtlesim
         marker.ns = "boxes"
         marker.id = i
         marker.type = Marker.CUBE
@@ -48,6 +21,7 @@ def spawn_boxes(box):
         marker.pose.position.x = x
         marker.pose.position.y = y
         marker.pose.position.z = 0.25
+        marker.pose.orientation.w = 1.0  # Orientamento neutro
         marker.scale.x = 0.5
         marker.scale.y = 0.5
         marker.scale.z = 0.5
@@ -82,7 +56,6 @@ def init_boxes():
     box.status = [0, 0, 0, 0, 0, 0]
 
     spawn_boxes(box)
-    spawn_robot()
 
     spawn = False
     while not rospy.is_shutdown():
@@ -100,7 +73,6 @@ def handle_reset_boxes(req):
 if __name__ == "__main__":
     rospy.init_node("init_spawn", anonymous=False)
     rospy.loginfo("Initializing system")
-    robotpub = rospy.Publisher('/robot_marker', Marker, queue_size=10)
     boxpub = rospy.Publisher('/box_marker', MarkerArray, queue_size=10)
     rospy.Service('reset_boxes', reset_boxes, handle_reset_boxes)
     rospy.loginfo("Ready to reset boxes")
