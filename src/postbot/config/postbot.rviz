@@ -77,7 +77,7 @@ Visualization Manager:
   Global Options:
     Background Color: 48; 48; 48
     Default Light: true
-    Fixed Frame: world  # Cambiato da "map" a "world"
+    Fixed Frame: world  
     Frame Rate: 30
   Tools:
     - Class: rviz/Interact
@@ -95,8 +95,8 @@ Views:
     Distance: 10
     Field of View: 0.785398
     Focal Point:
-      X: 0
-      Y: 0
+      X: 5
+      Y: 5
       Z: 0
     Name: Current View
     Near Clip Distance: 0.01

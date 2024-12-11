@@ -81,9 +81,9 @@ def move_turtle(target_x, target_y):
     else:
         twist.angular.z = 0.0
         # Controllo proporzionale per la distanza
-        if distance > tolerance:
+    if distance > tolerance:
             twist.linear.x = 1.5 * distance
-        else:
+    else:
             twist.linear.x = 0.0
 
     # Limitare i valori di velocità
@@ -148,7 +148,7 @@ def remove_marble_marker(marble):
     marker_remove.header.frame_id = "world"
     marker_remove.header.stamp = rospy.Time.now()
     marker_remove.ns = "marbles"
-    marker_remove.id = 0  # Assumendo un'unica marble alla volta
+    marker_remove.id = 0 
     marker_remove.action = Marker.DELETE
     marble_marker_pub.publish(marker_remove)
     rospy.loginfo(f"Marble {marble.color} rimossa dalla posizione ({marble.x}, {marble.y})")
