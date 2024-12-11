@@ -104,15 +104,8 @@ def manage_movement():
             move_turtle(current_marble.x, current_marble.y)
             if check_reached(current_marble.x, current_marble.y):
                 rospy.loginfo(f"Pallina {current_marble.color} raccolta a ({current_marble.x}, {current_marble.y})")
-                # Aggiornare lo stato della scatola corrispondente
-                box_index = colors.index(current_marble.color)
-                current_boxes = list(box_status.status)
-                if current_boxes[box_index] < 1:  # Assicurarsi di non superare il limite
-                    current_boxes[box_index] = 1
-                    box_status.status = current_boxes
-                    box_status_pub.publish(box_status) 
-                # Aggiornare i marker: rimuovere la marble dalla sua posizione e aggiungerla alla scatola
-                move_marble_to_box(current_marble, box_index)
+                # Rimuovere la marble dal suo posto
+                remove_marble_marker(current_marble)
                 # Passare allo stato di movimento verso la scatola
                 current_state = "MOVING_TO_BOX"
     elif current_state == "MOVING_TO_BOX":
@@ -123,7 +116,14 @@ def manage_movement():
             move_turtle(target_box_x, target_box_y)
             if check_reached(target_box_x, target_box_y):
                 rospy.loginfo(f"Consegna pallina {current_marble.color} nella scatola a ({target_box_x}, {target_box_y})")
-                # Reset the current marble
+                # Aggiungere la marble alla scatola
+                add_marble_to_box(current_marble, box_index)
+                # Incrementare lo stato della scatola
+                box_status.status[box_index] += 1
+                box_status_pub.publish(box_status)
+                # Programmare la rimozione della marble dalla scatola dopo 5 secondi
+                rospy.Timer(rospy.Duration(5), lambda event: remove_marble_from_box(box_index), oneshot=True)
+                # Resettare la marble corrente
                 current_marble = None
                 # Verificare se tutte le scatole sono piene
                 if all(status >= 1 for status in box_status.status):
@@ -140,22 +140,23 @@ def manage_movement():
     elif current_state == "IDLE":
         pass  # Attendere nuovi obiettivi
 
-def move_marble_to_box(marble, box_index):
+def remove_marble_marker(marble):
     # Rimuovere la marble dalla sua posizione originale
     marker_remove = Marker()
     marker_remove.header.frame_id = "world"
     marker_remove.header.stamp = rospy.Time.now()
     marker_remove.ns = "marbles"
-    marker_remove.id = box_index  # Assicurarsi che l'ID sia unico per ogni scatola
+    marker_remove.id = 0  # Assumendo un'unica marble alla volta
     marker_remove.action = Marker.DELETE
     marble_marker_pub.publish(marker_remove)
+    rospy.loginfo(f"Marble {marble.color} rimossa dalla posizione ({marble.x}, {marble.y})")
 
-    # Aggiungere la marble alla scatola
+def add_marble_to_box(marble, box_index):
     marker_add = Marker()
     marker_add.header.frame_id = "world"
     marker_add.header.stamp = rospy.Time.now()
     marker_add.ns = "marbles"
-    marker_add.id = box_index  # Stesso ID per sovrascrivere
+    marker_add.id = box_index  # Assicurarsi che l'ID sia unico per ogni scatola
     marker_add.type = Marker.SPHERE
     marker_add.action = Marker.ADD
     marker_add.pose.position.x = box_status.x[box_index]
@@ -196,9 +197,6 @@ def move_marble_to_box(marble, box_index):
     marker_add.color.a = 1.0
     marble_marker_pub.publish(marker_add)
     rospy.loginfo(f"Marble {color} spostata nella scatola a ({marker_add.pose.position.x}, {marker_add.pose.position.y})")
-
-    # Programmare la rimozione della marble dalla scatola dopo 5 secondi
-    rospy.Timer(rospy.Duration(5), lambda event: remove_marble_from_box(box_index), oneshot=True)
 
 def remove_marble_from_box(box_index):
     marker_remove = Marker()
