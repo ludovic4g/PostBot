@@ -12,7 +12,6 @@ def marble_publisher(marble):
     marker = Marker()
     marker.header.frame_id = "world"  # 'world' frame per Turtlesim
     marker.header.stamp = rospy.Time.now()
-    marker.id = 10  # Unique ID per marble
     marker.type = Marker.SPHERE
     marker.action = Marker.ADD
     marker.pose.position.x = marble.x
@@ -24,33 +23,39 @@ def marble_publisher(marble):
     marker.scale.z = 0.2
 
     if marble.color == 'red':
+        marker.id = 11
         marker.color.r = 1.0
         marker.color.g = 0.0
         marker.color.b = 0.0
     elif marble.color == 'blue':
+        marker.id = 12
         marker.color.r = 0.0
         marker.color.g = 0.0
         marker.color.b = 1.0
     elif marble.color == 'green':
+        marker.id = 13
         marker.color.r = 0.0
         marker.color.g = 1.0
         marker.color.b = 0.0
     elif marble.color == 'white':
+        marker.id = 14
         marker.color.r = 1.0
         marker.color.g = 1.0
         marker.color.b = 1.0
     elif marble.color == 'purple':
+        marker.id = 15
         marker.color.r = 0.5
         marker.color.g = 0.0
         marker.color.b = 0.5
     elif marble.color == 'yellow':
+        marker.id = 16
         marker.color.r = 1.0
         marker.color.g = 1.0
         marker.color.b = 0.0
 
     marker.color.a = 1.0
     marblepub.publish(marker)
-    rospy.loginfo(f"Spawned Marble ({marble.x}, {marble.y}) {marble.color}")
+    rospy.loginfo(f"Spawned Marble with id {marker.id} at ({marble.x}, {marble.y}) {marble.color}")
 
 def marble_callback(data):
     global spawn, color_position

@@ -124,7 +124,7 @@ def manage_movement():
                 box_status.status = current_boxes
                 box_status_pub.publish(box_status)
                 # Programmare la rimozione della marble dalla scatola dopo 5 secondi
-                rospy.Timer(rospy.Duration(5), lambda event: remove_marble_from_box(box_index), oneshot=True)
+                rospy.Timer(rospy.Duration(5), lambda event: remove_marble_from_box(current_marble.color), oneshot=True)
                 # Resettare la marble corrente
                 current_marble = None
                 # Verificare se tutte le scatole sono piene
@@ -148,7 +148,18 @@ def remove_marble_marker(marble):
     marker_remove.header.frame_id = "world"
     marker_remove.header.stamp = rospy.Time.now()
     marker_remove.ns = "marbles"
-    marker_remove.id = 10 
+    if marble.color == 'red':
+        marker_remove.id = 10 
+    if marble.color == 'blue':
+        marker_remove.id = 11 
+    if marble.color == 'green':
+        marker_remove.id = 12 
+    if marble.color == 'white':
+        marker_remove.id = 13 
+    if marble.color == 'purple':
+        marker_remove.id = 14 
+    if marble.color == 'yellow':
+        marker_remove.id = 15
     marker_remove.action = Marker.DELETE
     marble_marker_pub.publish(marker_remove)
     rospy.loginfo(f"Marble {marble.color} rimossa dalla posizione ({marble.x}, {marble.y})")
@@ -200,15 +211,27 @@ def add_marble_to_box(marble, box_index):
     marble_marker_pub.publish(marker_add)
     rospy.loginfo(f"Marble {color} spostata nella scatola a ({marker_add.pose.position.x}, {marker_add.pose.position.y})")
 
-def remove_marble_from_box(box_index):
+def remove_marble_from_box(color):
     marker_remove = Marker()
     marker_remove.header.frame_id = "world"
     marker_remove.header.stamp = rospy.Time.now()
     marker_remove.ns = "marbles"
-    marker_remove.id = 10
+    if color == 'red':
+        marker_remove.id = 11 
+    if color == 'blue':
+        marker_remove.id = 12 
+    if color == 'green':
+        marker_remove.id = 13 
+    if color == 'white':
+        marker_remove.id = 14 
+    if color == 'purple':
+        marker_remove.id = 14 
+    if color == 'yellow':
+        marker_remove.id = 16
+    rospy.loginfo(f"Marble id that have to be remove: {marker_remove.id}")
     marker_remove.action = Marker.DELETE
     marble_marker_pub.publish(marker_remove)
-    rospy.loginfo(f"Marble consegnata alla scatola {colors[box_index]} a ({box_status.x[box_index]}, {box_status.y[box_index]})")
+    rospy.loginfo(f"Marble consegnata alla scatola {color}")
 
 def main():
     # Sottoscrizioni
