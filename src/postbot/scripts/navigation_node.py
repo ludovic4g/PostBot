@@ -21,31 +21,66 @@ second_flag = False
 colors = ['red', 'blue', 'green', 'yellow', 'white', 'purple']
 
 def update_box_marker(i, x, y, boxes):
-    global boxpub
-    j=0
-    for j in range(0, len(boxes)):
-        if(j==i):
-            box = Marker()
-            box.header.frame_id = "world" #?
-            box.id = i
-            box.ns ="boxes"
-            box.type = Marker.CUBE
-            box.action = Marker.ADD
-            box.pose.position.x = x
-            box.pose.position.y = y
-            box.pose.position.z = 0.25
-            box.scale.x = 0.5
-            box.scale.y = 0.5
-            box.scale.z = 0.5
 
+    markers = MarkerArray()
+    global boxpub
+    for j in range(len(boxes.colors)):
+        box = Marker()
+        box.header.frame_id = "world" #?
+        box.id = j
+        box.ns ="boxes"
+        box.type = Marker.CUBE
+        box.action = Marker.ADD
+        box.pose.position.x = boxes.x[j]
+        box.pose.position.y = boxes.y[j]
+        box.pose.position.z = 0.25
+        box.scale.x = 0.5
+        box.scale.y = 0.5
+        box.scale.z = 0.5
+
+        if j==i:
             #colore grigio perchè usato
             box.color.r = 0.5
             box.color.g = 0.5
             box.color.b = 0.5
+        else:
+            color = boxes.colors[j]
+            if color == 'red':
+                box.color.r = 1.0
+                box.color.g = 0.0
+                box.color.b = 0.0
 
-            box.color.a = 1.0
+            elif color == 'blue':
+                box.color.r = 0.0
+                box.color.g = 0.0
+                box.color.b = 1.0
+            
+            elif color == 'green':
+                box.color.r = 0.0
+                box.color.g = 1.0
+                box.color.b = 0.0
+        
+            elif color == 'white':
+                box.color.r = 1.0
+                box.color.g = 1.0
+                box.color.b = 1.0
 
-    boxpub.publish(boxes)
+            elif color == 'purple':
+                box.color.r = 0.5
+                box.color.g = 0.0
+                box.color.b = 0.5
+
+            elif color == 'yellow':
+                box.color.r = 1.0
+                box.color.g = 1.0
+                box.color.b = 0.0
+        
+        
+        
+        box.color.a = 1.0
+        markers.markers.append(box)
+
+    boxpub.publish(markers)
 
     rospy.loginfo("Boxes updated")
      
