@@ -44,7 +44,7 @@ Visualization Manager:
       Name: Grid
       Plane: XY
       Plane Cell Count: 10
-      Reference Frame: world
+      Reference Frame: map
     - Class: rviz/TF
       Enabled: true
       Name: TF
@@ -98,7 +98,7 @@ Views:
     Name: Current View
     Near Clip Distance: 0.01
     Pitch: 0.785398
-    Target Frame: world
+    Target Frame: map
     Yaw: 0.785398
   Saved: ~
 Window Geometry:

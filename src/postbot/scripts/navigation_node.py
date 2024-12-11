@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 import rospy
-from postbot.msg import BoxInfo, BoxGoal
+from postbot.msg import BoxInfo, BoxGoal, MarbleInfo
 from postbot.srv import reset_boxes
 from visualization_msgs.msg import Marker, MarkerArray
 from geometry_msgs.msg import PoseStamped
@@ -10,11 +10,13 @@ box_color = ' '
 rate = rospy.Rate(1)
 boxpub = None
 robotpub = None
+current_marble = None
 
 colors = ['red', 'blue', 'green', 'yellow', 'white', 'purple']
 
 flag = False
 second_flag = False
+marble_flag = False
 box_status = BoxInfo()
 
 def update_box_marker(i, box_status):
@@ -98,8 +100,15 @@ def box_status_callback(data):
     box_status = data
     second_flag = True
 
+def marble_callback(data):
+    global current_marble, marble_flag
+    current_marble = data
+    marble_flag = True
+
 rospy.Subscriber('/box_goal', BoxGoal, box_goal_callback)
 rospy.Subscriber('/box_status', BoxInfo, box_status_callback)
+rospy.Subscriber('/current_marble', MarbleInfo, marble_callback)
+
 
 robotpub = rospy.Publisher("/robot_marker", Marker, queue_size=10)
 pub = rospy.Publisher("/box_status", BoxInfo, queue_size=10)
@@ -109,19 +118,21 @@ rospy.wait_for_service('/reset_boxes')
 reset_boxes_service = rospy.ServiceProxy('/reset_boxes', reset_boxes)
 
 while not rospy.is_shutdown():
+
+    if marble_flag and flag:
+        navigate_to_goal(current_marble.x, current_marble.y)
+        rospy.sleep(5)
+        marble_flag = False
+
     if flag and second_flag:
         current_status = list(box_status.status)
         i = colors.index(box_color)
         goal_x = box_status.x[i]
         goal_y = box_status.y[i]
 
-        # Aggiorna posizione robot (marker)
         robot_marker(goal_x, goal_y)
-
-        # Naviga verso la scatola con move_base
         navigate_to_goal(goal_x, goal_y)
-
-        # Aggiorna stato scatola
+        
         current_status[i] = 1
         empty_box = [index for index, value in enumerate(current_status) if value == 0]
 

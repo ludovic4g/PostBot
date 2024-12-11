@@ -11,18 +11,7 @@ robotpub = None
 def spawn_robot():
     global robotpub
     robot_name = "postbot"
-    # Assicurarsi che robot_initial_pose sia caricato via rosparam prima del lancio
-    # Esempio in robot_par.yaml:
-    # robot_initial_pose:
-    #   x: 0.5
-    #   y: 0.5
-    #   z: 0.25
-    init_pose = rospy.get_param('robot_initial_pose', {'x':0.5, 'y':0.5, 'z':0.25})
-    model_path = rospy.get_param('model_path', '/home/user/postbot/src/postbot/urdf/postbot.urdf')
-
-    with open(model_path, 'r') as urdf_file:
-        robot_urdf = urdf_file.read()
-        rospy.loginfo("Urdf Model read")
+    init_pose = rospy.get_param('robot_initial_pose', 'src/postbot/config/robot_par.yaml')
 
     rospy.loginfo("Spawning Robot Marker in Rviz")
 
