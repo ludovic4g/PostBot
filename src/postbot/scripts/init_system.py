@@ -71,7 +71,7 @@ def spawn_boxes(box):
     boxpub.publish(boxes)
 
 def init_boxes():
-    pub = rospy.Publisher('/box_status', BoxInfo, queue_size=10)
+    pub = rospy.Publisher('/box_status', BoxInfo, queue_size=10) # deve essere latchata per far si che la generazione di biglie non si blocca
     rospy.sleep(5)
 
     box = BoxInfo()

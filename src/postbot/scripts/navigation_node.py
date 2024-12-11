@@ -96,6 +96,8 @@ def box_status_callback(data):
     box_status = data
     second_flag = True
 
+
+rospy.loginfo("Sono qui")
 rospy.Subscriber('/box_goal', BoxGoal, box_goal_callback)
 rospy.Subscriber('/box_status', BoxInfo, box_status_callback)
 
@@ -103,8 +105,6 @@ robotpub = rospy.Publisher("/robot_marker", Marker, queue_size=10)
 pub = rospy.Publisher("/box_status", BoxInfo, queue_size=10)
 boxpub = rospy.Publisher('/box_marker', MarkerArray, queue_size=10)
 
-rospy.wait_for_service('/reset_boxes')
-reset_boxes_service = rospy.ServiceProxy('/reset_boxes', reset_boxes)
 
 while not rospy.is_shutdown():
     if flag and second_flag:
@@ -119,6 +119,8 @@ while not rospy.is_shutdown():
         empty_box = [index for index, value in enumerate(current_status) if value == 0]
 
         if len(empty_box) == 0:
+            rospy.wait_for_service('/reset_boxes')
+            reset_boxes_service = rospy.ServiceProxy('/reset_boxes', reset_boxes)
             response = reset_boxes_service()
             if response.done:
                 rospy.loginfo("Reset service sent successfully")
