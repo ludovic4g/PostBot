@@ -106,9 +106,11 @@ def manage_movement():
                 rospy.loginfo(f"Pallina {current_marble.color} raccolta a ({current_marble.x}, {current_marble.y})")
                 # Aggiornare lo stato della scatola corrispondente
                 box_index = colors.index(current_marble.color)
-                if box_status.status[box_index] < 1:  # Assicurarsi di non superare il limite
-                    box_status.status[box_index] += 1
-                    box_status_pub.publish(box_status)
+                current_boxes = list(box_status.status)
+                if current_boxes[box_index] < 1:  # Assicurarsi di non superare il limite
+                    current_boxes[box_index] = 1
+                    box_status.status = current_boxes
+                    box_status_pub.publish(box_status) #AGGIORNAASOIJHDSIUOEBHFWOUEILHJS
                 # Aggiornare i marker: rimuovere la marble dalla sua posizione e aggiungerla alla scatola
                 move_marble_to_box(current_marble, box_index)
                 # Passare allo stato di movimento verso la scatola

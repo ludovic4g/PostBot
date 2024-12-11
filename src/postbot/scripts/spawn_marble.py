@@ -5,6 +5,9 @@ from postbot.srv import spawn_marble
 from visualization_msgs.msg import Marker
 import random
 
+color_position = 0
+spawn = False
+
 def marble_publisher(marble):
     marker = Marker()
     marker.header.frame_id = "world"  # 'world' frame per Turtlesim
@@ -64,6 +67,7 @@ def main():
     rospy.wait_for_service('/spawn_marble')
     spawn_marble_service = rospy.ServiceProxy('/spawn_marble', spawn_marble)
 
+    colors = ['red', 'blue', 'green', 'yellow', 'white', 'purple']
     rospy.Subscriber("/box_status", BoxInfo, marble_callback)
     rate = rospy.Rate(1)  # 1 Hz
 
