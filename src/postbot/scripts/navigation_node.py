@@ -35,7 +35,6 @@ def update_box_marker(i, box_status):
         marker.scale.z = 0.5
 
         if j == i:
-            # Box piena = grigio
             marker.color.r = 0.5; marker.color.g = 0.5; marker.color.b = 0.5
         else:
             color = box_status.colors[j]
@@ -58,7 +57,6 @@ def update_box_marker(i, box_status):
     boxpub.publish(marker_array)
 
 def navigate_to_goal(x, y):
-    # Pubblica un goal per move_base
     goal_pub = rospy.Publisher('/move_base_simple/goal', PoseStamped, queue_size=10)
     rospy.sleep(1)
     goal = PoseStamped()
@@ -114,14 +112,9 @@ while not rospy.is_shutdown():
         i = colors.index(box_color)
         goal_x = box_status.x[i]
         goal_y = box_status.y[i]
-
-        # Aggiorna posizione robot (marker)
+        rospy.loginfo("Navigation node here")
         robot_marker(goal_x, goal_y)
-
-        # Naviga verso la scatola con move_base
         navigate_to_goal(goal_x, goal_y)
-
-        # Aggiorna stato scatola
         current_status[i] = 1
         empty_box = [index for index, value in enumerate(current_status) if value == 0]
 
@@ -133,6 +126,7 @@ while not rospy.is_shutdown():
             box_status.status = current_status
             pub.publish(box_status)
             update_box_marker(i, box_status)
+            rospy.loginfo("Boxes updated")
             flag = False
             second_flag = False
     rospy.sleep(5)

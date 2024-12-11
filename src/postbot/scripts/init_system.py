@@ -76,9 +76,8 @@ def init_boxes():
 
     box = BoxInfo()
     box.colors =  ['red', 'blue', 'green', 'yellow', 'white', 'purple']
-    # Posizioni iniziali di esempio, personalizzare se necessario
-    box.x = [1, 2, 3, 0, -1, -2]
-    box.y = [1, 1, 1, 1, 2, 3]
+    box.x = [4, 4, 4, -4, -4, -4]
+    box.y = [1, 0, -1, 1, 0, -1]
     box.status = [0, 0, 0, 0, 0, 0]
 
     spawn_boxes(box)
@@ -94,7 +93,7 @@ def init_boxes():
 
 def handle_reset_boxes(req):
     init_boxes()
-    rospy.loginfo("Reset service call arrived, done = true")
+    rospy.loginfo("Resetted boxes")
     return reset_boxesResponse(done=True)
 
 if __name__ == "__main__":
@@ -103,6 +102,5 @@ if __name__ == "__main__":
     robotpub = rospy.Publisher('/robot_marker', Marker, queue_size=10)
     boxpub = rospy.Publisher('/box_marker', MarkerArray, queue_size=10)
     rospy.Service('reset_boxes', reset_boxes, handle_reset_boxes)
-    rospy.loginfo("Ready to reset boxes")
     init_boxes()
     rospy.spin()
