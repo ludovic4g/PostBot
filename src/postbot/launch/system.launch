@@ -1,18 +1,12 @@
 <launch>
     <rosparam file="$(find postbot)/config/robot_par.yaml" command="load"/>
 
-    <!-- <node pkg="map_server" type="map_server" name="map_server" args="$(find postbot)/maps/testmap.yaml"/>-->
-
-    <node pkg="tf2_ros" type="static_transform_publisher" name="world_to_map" args="0 0 0 0 0 0 1 world map"/>
-
-    <!-- Pubblicazione dello stato del robot -->
     <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
         <param name="robot_description" command="cat $(find postbot)/urdf/postbot.urdf"/>
     </node>
 
-    <!-- Configurazione Move Base -->
-    <include file="$(find postbot)/launch/move_base.launch"/>
-
+    <node pkg="turtlesim" type="turtlesim_node" name="turtlesim" output="screen"/>
+    
     <node pkg="rviz" type="rviz" name="rviz" args="-d $(find postbot)/config/postbot.rviz"/>
 
     <include file="$(find postbot)/launch/nodes.launch"/>
