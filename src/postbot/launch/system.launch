@@ -2,9 +2,9 @@
 
     <rosparam file ="$(find postbot)/config/robot_par.yaml" command = "load"/>
 
-    <include file ="$(find postbot)/launch/gazebo.launch">
+   <!-- <include file ="$(find postbot)/launch/gazebo.launch">
         <arg name="world_file" default ="$(find postbot)/worlds/postbot_world.world"/>
-    </include>
+    </include>-->
 
     <include file ="$(find postbot)/launch/view_robot.launch"/>
 

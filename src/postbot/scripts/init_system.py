@@ -2,7 +2,6 @@
 import rospy
 import random
 from geometry_msgs.msg import Pose
-from gazebo_msgs.srv import SpawnModel
 from postbot.msg import BoxInfo
 from postbot.srv import reset_boxes, reset_boxesResponse
 from visualization_msgs.msg import Marker, MarkerArray
@@ -16,15 +15,12 @@ def spawn_robot():
     robot_name = "postbot"
     robot_inital_pose = rospy.get_param('robor_initial_pose', 'src/postbot/config/robot_par.yaml')
 
-    rospy.wait_for_service('/gazebo/spawn_urdf_model')
-    spawn_model = rospy.ServiceProxy('/gazebo/spawn_urdf_model', SpawnModel)
     model_path = rospy.get_param('model_path', '/home/ludoludo/postbot/src/postbot/urdf/postbot.urdf')
 
     with open(model_path, 'r') as urdf_file:
         robot_urdf = urdf_file.read()
         rospy.loginfo("Urdf Model read")
 
-    spawn_model(robot_name, robot_urdf, "", robot_inital_pose, "world")
     rospy.loginfo("Spawned in Gazebo")
 
     marker = Marker()

@@ -4,7 +4,7 @@ from postbot.msg import BoxInfo, BoxGoal
 from postbot.srv import reset_boxes
 from visualization_msgs.msg import Marker, MarkerArray
 from turtlesim.srv import TeleportAbsolute
-from geometry_msgs.msg import Twist
+from geometry_msgs.msg import PoseStamped
 
 rospy.init_node("navigation", anonymous=False)
 box_color = ' '
@@ -20,54 +20,46 @@ flag = False
 second_flag = False
 colors = ['red', 'blue', 'green', 'yellow', 'white', 'purple']
 
-def update_box_marker(i):
+def update_box_marker(i, x, y, boxes):
     global boxpub
-    box = Marker()
-    box.header.frame_id = "world" #?
-    box.id = i
-    box.ns ="boxes"
-    box.type = Marker.CUBE
-    box.action = Marker.ADD
-    box.pose.position.x = x
-    box.pose.position.y = y
-    box.pose.position.z = 0.25
-    box.scale.x = 0.5
-    box.scale.y = 0.5
-    box.scale.z = 0.5
+    j=0
+    for j in range(0, len(boxes)):
+        if(j==i):
+            box = Marker()
+            box.header.frame_id = "world" #?
+            box.id = i
+            box.ns ="boxes"
+            box.type = Marker.CUBE
+            box.action = Marker.ADD
+            box.pose.position.x = x
+            box.pose.position.y = y
+            box.pose.position.z = 0.25
+            box.scale.x = 0.5
+            box.scale.y = 0.5
+            box.scale.z = 0.5
 
-    #colore grigio perchè usato
-    box.color.r = 0.5
-    box.color.g = 0.5
-    box.color.b = 0.5
+            #colore grigio perchè usato
+            box.color.r = 0.5
+            box.color.g = 0.5
+            box.color.b = 0.5
 
-    box.color.a = 1.0
+            box.color.a = 1.0
 
-    boxpub.publish(box)
+    boxpub.publish(boxes)
 
-    rospy.loginfo("Box full updated")
+    rospy.loginfo("Boxes updated")
      
 def navigate_to_goal(x, y):
     rospy.loginfo("Navigating to box goal:")
-    pub = rospy.Publisher('/turtle1/cmd_vel', Twist, queue_size=10)
+    pub = rospy.Publisher('/move_base_simple/goal', PoseStamped, queue_size=10)
+    goal = PoseStamped()
+    goal.header.frame_id = "map"
+    goal.pose.position.x = x
+    goal.pose.position.y = y
+    goal.pose.orientation.w = 1.0
+    pub.publish(goal)
 
-    velocity_msg = Twist()
-    rate = rospy.Rate(10)
-
-    velocity_msg.linear.x = 1.0
-    velocity_msg.angular.z = 0.0
-    for _ in range(10):
-        pub.publish(velocity_msg)
-        robot_marker(x, y)
-        rate.sleep()
-
-    velocity_msg.linear.x = 0.0
-    pub.publish(velocity_msg)
-
-    rospy.wait_for_service('/turtle1/teleport_absolute')
-    teleport_service = rospy.ServiceProxy('/turtle1/teleport_absolute', TeleportAbsolute)
-
-    teleport_service(x,y,0.0)
-
+    
 
 
 
@@ -111,7 +103,7 @@ def box_status_callback(data):
 rospy.Subscriber('/box_status', BoxInfo, box_status_callback)
 
 robotpub = rospy.Publisher("/robot_marker", Marker, queue_size=10)
-pub = rospy.Publisher("/box_marker", MarkerArray, queue_size=10)
+pub = rospy.Publisher("/box_status", BoxInfo, queue_size=10)
 
 boxpub = rospy.Publisher('/box_marker', MarkerArray, queue_size=10)
 
@@ -123,9 +115,10 @@ while not rospy.is_shutdown():
             rospy.loginfo("Updating boxes status:")
             current_status = list(box_status.status)
             i = colors.index(box_color)
-            goal_x = box_status[i].x
-            goal_y = box_status[i].y
+            goal_x = box_status.x[i]
+            goal_y = box_status.y[i]
 
+            
             navigate_to_goal(goal_x,goal_y)
             current_status[i] = 1
             rospy.loginfo(f"Current box status: {current_status}")
@@ -142,7 +135,7 @@ while not rospy.is_shutdown():
             else:
                 box_status.status = current_status
                 pub.publish(box_status)
-                update_box_marker(i)
+                update_box_marker(i, goal_x, goal_y, box_status)
                 flag = False
                 second_flag = False
                 rospy.loginfo("Updated boxes status:")

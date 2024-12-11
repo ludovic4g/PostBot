@@ -81,23 +81,23 @@ Visualization Manager:
         Expand Tree: false
         Link Tree Style: ""
       Name: RobotModel
-      Robot Description: robot_description
+      Robot Description: /robot_description
       TF Prefix: ""
       Update Interval: 0
       Value: true
       Visual Enabled: true
     - Class: rviz/Marker
       Enabled: true
-      Marker Topic: visualization_marker
-      Name: Marker
+      Marker Topic: /current_marble
+      Name: Marble
       Namespaces:
         {}
       Queue Size: 100
       Value: true
     - Class: rviz/MarkerArray
       Enabled: true
-      Marker Topic: visualization_marker_array
-      Name: MarkerArray
+      Marker Topic: /box_status
+      Name: Boxes
       Namespaces:
         {}
       Queue Size: 100
@@ -106,7 +106,7 @@ Visualization Manager:
   Global Options:
     Background Color: 48; 48; 48
     Default Light: true
-    Fixed Frame: map
+    Fixed Frame: world
     Frame Rate: 30
   Name: root
   Tools:
@@ -153,6 +153,28 @@ Visualization Manager:
 Window Geometry:
   Displays:
     collapsed: false
+   - Class: rviz/Path
+      Enabled : true
+      Name: RobotPath
+      Topic: /move_base/GlobalPlanner/plan
+    - Class: rviz/Marker
+      Enabled: true
+      Marker Topic: /robot_marker
+      Name: Postbot
+      Queue Size: 10
+    - Class: rviz/Marker
+      Enabled: true
+      Marker Topic: /marble_marker
+      Name: Marble
+      Queue Size: 10  
+    - Class: rviz/MarkerArray
+      Enabled: true
+      Marker Topic: /box_marker
+      Name: Boxes
+      Queue Size: 10
+    - Class: rviz/TF
+      Enabled: true
+      Name: TF
   Height: 881
   Hide Left Dock: false
   Hide Right Dock: false
@@ -168,3 +190,4 @@ Window Geometry:
   Width: 1440
   X: 72
   Y: 27
+   

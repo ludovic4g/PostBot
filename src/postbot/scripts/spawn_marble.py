@@ -16,9 +16,9 @@ def marble_publisher(marble):
     marker.id = 1
     marker.type = Marker.SPHERE
     marker.action = Marker.ADD
-    marker.position.x = marble.x
-    marker.position.y = marble.y
-    marker.position.z = 0.1
+    marker.pose.position.x = marble.x
+    marker.pose.position.y = marble.y
+    marker.pose.position.z = 0.1
     marker.scale.x = 0.2
     marker.scale.y = 0.2
     marker.scale.z = 0.2
@@ -53,7 +53,6 @@ def marble_publisher(marble):
         marker.color.g = 1.0
         marker.color.b = 0.0
     
-    marble.color.a = 1.0
 
     marblepub.publish(marker)
     rospy.loginfo(f"Spawned Marble with position ({marble.x}, {marble.y}) and color {marble.color}")
