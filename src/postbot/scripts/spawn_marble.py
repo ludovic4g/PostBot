@@ -5,6 +5,9 @@ from postbot.srv import spawn_marble
 from visualization_msgs.msg import Marker
 import random
 
+spawn = None
+color_position = 0
+
 def marble_publisher(marble):
     marker = Marker()
     marker.header.frame_id = "world"  # 'world' frame per Turtlesim
