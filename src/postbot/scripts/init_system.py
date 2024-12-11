@@ -5,68 +5,104 @@ from geometry_msgs.msg import Pose
 from gazebo_msgs.srv import SpawnModel
 from postbot.msg import BoxInfo
 from postbot.srv import reset_boxes, reset_boxesResponse
+from visualization_msgs.msg import Marker, MarkerArray
+
+boxpub = None
+robotpub = None
 
 
 def spawn_robot():
-    initial_pose = rospy.get_param('robot_initial_pose')
-    rospy.loginfo("Detected parameters for robot initial pose")
-    pose = Pose()
-    pose.position.x = initial_pose['x']
-    pose.position.y = initial_pose['y']
-    pose.orientation.z = 0.0
+    global robotpub
+    robot_name = "postbot"
+    robot_inital_pose = rospy.get_param('robor_initial_pose', 'src/postbot/config/robot_par.yaml')
 
-    # rospy.loginfo("Before gazebo service")
-    # rospy.wait_for_service('/gazebo/spawn_sdf_model')
-    # try:
-    #    spawn_model = rospy.ServiceProxy('/gazebo/spawn_sdf_model', SpawnModel)
-    #   spawn_model(model_name="robot", model_xml="src/postbot/urdf/postbot.urdf", robot_namespace="", initial_pose=pose, reference_frame="world")
-    #   rospy.loginfo("Robot spawned")
-    # except rospy.ServiceException:
-    #   rospy.loginfo("Robot NOT spawned")
+    rospy.wait_for_service('/gazebo/spawn_urdf_model')
+    spawn_model = rospy.ServiceProxy('/gazebo/spawn_urdf_model', SpawnModel)
+    model_path = rospy.get_param('model_path', '/home/ludoludo/postbot/src/postbot/urdf/postbot.urdf')
 
+    with open(model_path, 'r') as urdf_file:
+        robot_urdf = urdf_file.read()
+        rospy.loginfo("Urdf Model read")
 
-def spawn_boxes():
+    spawn_model(robot_name, robot_urdf, "", robot_inital_pose, "world")
+    rospy.loginfo("Spawned in Gazebo")
 
-    box_position = [
-        {"x" : 1.0, "y" : 1.0, "z" : 0.0},
-        {"x" : 2.0, "y" : 1.0, "z" : 0.0},
-        {"x" : 3.0, "y" : 1.0, "z" : 0.0},
-        {"x" : 1.0, "y" : 2.0, "z" : 0.0},
-        {"x" : 2.0, "y" : 2.0, "z" : 0.0},
-        {"x" : 3.0, "y" : 2.0, "z" : 0.0},
-    ]
+    marker = Marker()
+    marker.header.frame_id = "world"
+    marker.id = 0
+    marker.type = Marker.CUBE
+    marker.action = Marker.ADD
+    marker.pose.position.x = 0.5
+    marker.pose.position.y = 0.5
+    marker.pose.position.z = 0.25
+    marker.scale.x = 0.5
+    marker.scale.y = 0.5
+    marker.scale.z = 0.5
+    # cambia colore
+    marker.color.r = 0.0
+    marker.color.g = 1.0
+    marker.color.b = 0.0
+    marker.color.a = 1.0
+    robotpub.publish(marker)
 
-    colors = ['red', 'blue', 'green', 'yellow', 'white', 'purple']
-
-    #rospy.wait_for_service('/gazebo/spawn_sdf_model')
-
-    try:
-        #spawn_model = rospy.ServiceProxy('/gazebo/spawn_sdf_model', SpawnModel)
-
-        for i, pos in enumerate(box_position):
-            pose = BoxInfo()
-            pose.x = pos["x"]
-            pose.y = pos["y"]
-            pose.colors = colors
-            pose.status = [0, 0 ,0 ,0 ,0 ,0]
-
-            color = colors[i % len(colors)]
-
-            model_name = f"box_{i}"
-            model_path = f"src/postbot/urdf/box_{color}.urdf"
-
-            #spawn_model(model_name=model_name, model_xml=model_path, robot_namespace="", initial_pose=pose, reference_name="world")
-            #rospy.loginfo("Box spawned")
-
-    except rospy.ServiceException:
-        pass
+    rospy.loginfo("Spawned in Rviz and published")
 
 
-def spawn_robot_boxes():
+def spawn_boxes(box):
+    global boxpub
+    boxpub = rospy.Publisher('/box_marker',MarkerArray, queue_size=10)
+    boxes = MarkerArray()
 
-    spawn_robot()
+    for i, (x, y, color) in enumerate(zip(box.x, box.y, box.colors)):
+        marker = Marker()
+        marker.header.frame_id = "world" #?
+        marker.ns = "boxes"
+        marker.id = i
+        marker.type = Marker.CUBE
+        marker.action = Marker.ADD
+        marker.pose.position.x = x
+        marker.pose.position.y = y
+        marker.pose.position.z = 0.25
+        marker.scale.x = 0.5
+        marker.scale.y = 0.5
+        marker.scale.z = 0.5
 
-    spawn_boxes()
+        if color == 'red':
+            marker.color.r = 1.0
+            marker.color.g = 0.0
+            marker.color.b = 0.0
+
+        elif color == 'blue':
+            marker.color.r = 0.0
+            marker.color.g = 0.0
+            marker.color.b = 1.0
+        
+        elif color == 'green':
+            marker.color.r = 0.0
+            marker.color.g = 1.0
+            marker.color.b = 0.0
+        
+        elif color == 'white':
+            marker.color.r = 1.0
+            marker.color.g = 1.0
+            marker.color.b = 1.0
+
+        elif color == 'purple':
+            marker.color.r = 0.5
+            marker.color.g = 0.0
+            marker.color.b = 0.5
+
+        elif color == 'yellow':
+            marker.color.r = 1.0
+            marker.color.g = 1.0
+            marker.color.b = 0.0
+        
+        marker.color.a = 1.0
+        boxes.markers.append(marker)
+    
+    boxpub.publish(boxes)
+
+
 
 
 def init_boxes():
@@ -81,6 +117,9 @@ def init_boxes():
     box.status = [0, 0, 0, 0, 0 ,0]
 
     rospy.loginfo(f"box value: {box}")
+
+    spawn_boxes(box)
+    spawn_robot()
 
     #flag used : the topic is published only one time
 
@@ -107,8 +146,10 @@ if __name__ == "__main__":
 
     rospy.init_node("init_spawn", anonymous=False)
     rospy.loginfo("Initializing system")
-    # spawn_robot_boxes()
-
+    # spawn_robot_boxes() 
+    robotpub = rospy.Publisher('/robot_marker', Marker, queue_size=10)
+    boxpub = rospy.Publisher('/box_marker', MarkerArray, queue_size=10)
+    
     rospy.Service('reset_boxes', reset_boxes, handle_reset_boxes)
     rospy.loginfo("Ready to reset boxes")
 

@@ -2,6 +2,7 @@
 import rospy
 from postbot.msg import BoxGoal, BoxInfo, MarbleInfo
 from threading import Condition
+from visualization_msgs.msg import Marker, MarkerArray
 
 flag = False
 box_flag = False
@@ -13,6 +14,7 @@ rospy.loginfo("Initializing node")
 new_box_color = ' '
 colors = ['red', 'blue', 'green', 'yellow', 'white', 'purple']
 box_goal = None
+box_status = None
 
 
 def callback(data):
@@ -29,12 +31,13 @@ def callback(data):
 
 def boxstatus_callback(data):
     rospy.loginfo("Sono nel secondo callback")
-    global box_goal, box_flag
+    global box_goal, box_flag, box_status
     with sequencing:
         while not flag:
             sequencing.wait()
         color_position = colors.index(new_box_color) 
         rospy.loginfo(f"color position? : {color_position}")
+        box_status = list(data.status)
         box_goal = BoxGoal()
         box_goal.x = data.x[color_position]
         box_goal.y = data.y[color_position]
@@ -57,7 +60,7 @@ rospy.loginfo(f"Box assigned color 2: {new_box_color}")
 # Publish the coordinates of the box that has to be delivered
 pub = rospy.Publisher('/box_goal', BoxGoal, queue_size=10)
 
-
+boxpub = rospy.Publisher('/box_marker', MarkerArray, queue_size=10)
 while not rospy.is_shutdown():
     #rospy.loginfo(f"Waiting for box_flag: {box_flag} and flag: {flag}")
     with sequencing:

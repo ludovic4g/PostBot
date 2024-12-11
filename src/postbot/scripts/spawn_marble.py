@@ -2,10 +2,62 @@
 import rospy
 from postbot.msg import MarbleInfo, BoxInfo
 from postbot.srv import spawn_marble
+from visualization_msgs.msg import Marker
 import random
 
 color_position = 0
 spawn = False
+
+def marble_publisher(marble):
+    marblepub = rospy.Publisher('/marble_marker', Marker, queue_size=10)
+
+    marker = Marker()
+    marker.header.frame_id="world"
+    marker.id = 1
+    marker.type = Marker.SPHERE
+    marker.action = Marker.ADD
+    marker.position.x = marble.x
+    marker.position.y = marble.y
+    marker.position.z = 0.1
+    marker.scale.x = 0.2
+    marker.scale.y = 0.2
+    marker.scale.z = 0.2
+
+    if marble.color == 'red':
+        marker.color.r = 1.0
+        marker.color.g = 0.0
+        marker.color.b = 0.0
+
+    elif marble.color == 'blue':
+        marker.color.r = 0.0
+        marker.color.g = 0.0
+        marker.color.b = 1.0
+        
+    elif marble.color == 'green':
+        marker.color.r = 0.0
+        marker.color.g = 1.0
+        marker.color.b = 0.0
+        
+    elif marble.color == 'white':
+        marker.color.r = 1.0
+        marker.color.g = 1.0
+        marker.color.b = 1.0
+
+    elif marble.color == 'purple':
+        marker.color.r = 0.5
+        marker.color.g = 0.0
+        marker.color.b = 0.5
+
+    elif marble.color == 'yellow':
+        marker.color.r = 1.0
+        marker.color.g = 1.0
+        marker.color.b = 0.0
+    
+    marble.color.a = 1.0
+
+    marblepub.publish(marker)
+    rospy.loginfo(f"Spawned Marble with position ({marble.x}, {marble.y}) and color {marble.color}")
+        
 
 rospy.init_node("spawn_marble_node", anonymous=False)
 
@@ -51,7 +103,10 @@ while not rospy.is_shutdown():
             new_marble.color = colors[color_position]
             new_marble.x = x
             new_marble.y = y
+            marble_publisher(new_marble)
             rospy.loginfo(f"biglia: {new_marble.color}") 
+            # CAMBIA COLORE SU RVIZ
+            # MANDA IL ROBOT IN DIREZIONE DELLA PALLINA
             rospy.loginfo(f"Publishing into /current_marble topic")
             pub.publish(new_marble)
             rospy.loginfo(f"Published into /current_marble topic")

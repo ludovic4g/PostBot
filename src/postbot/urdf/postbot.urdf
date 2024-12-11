@@ -1,24 +1,10 @@
 <?xml version="1.0"?>
 <robot name="postbot">
-    <link name="postbot link">
+    <link name="base_link">
         <visual>
             <geometry>
-                <cylinder length="0.6" radius="0.2"/>
+                <mesh filename="package://turtlebot3_description/meshes/turtlebot3_burger.stl"/>
             </geometry>
         </visual>
     </link>
-
-    <link>
-        <visual>
-            <geometry>
-                <box size="0.6 0.1 0.2"/>
-            </geometry>
-        </visual>
-    </link>
-
-    <joint>
-        <parent link="base_link"/>
-        <child link="right_leg"/>
-    </joint>
-
 </robot>
