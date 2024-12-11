@@ -12,7 +12,7 @@ def marble_publisher(marble):
     marker = Marker()
     marker.header.frame_id = "world"  # 'world' frame per Turtlesim
     marker.header.stamp = rospy.Time.now()
-    marker.id = random.randint(1, 1000)  # Unique ID per marble
+    marker.id = 10  # Unique ID per marble
     marker.type = Marker.SPHERE
     marker.action = Marker.ADD
     marker.pose.position.x = marble.x

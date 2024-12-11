@@ -81,10 +81,10 @@ def move_turtle(target_x, target_y):
     else:
         twist.angular.z = 0.0
         # Controllo proporzionale per la distanza
-    if distance > tolerance:
-            twist.linear.x = 1.5 * distance
-    else:
-            twist.linear.x = 0.0
+        if distance > tolerance:
+                twist.linear.x = 1.5 * distance
+        else:
+                twist.linear.x = 0.0
 
     # Limitare i valori di velocità
     twist.linear.x = max(min(twist.linear.x, 2.0), -2.0)
@@ -148,7 +148,7 @@ def remove_marble_marker(marble):
     marker_remove.header.frame_id = "world"
     marker_remove.header.stamp = rospy.Time.now()
     marker_remove.ns = "marbles"
-    marker_remove.id = 0 
+    marker_remove.id = 10 
     marker_remove.action = Marker.DELETE
     marble_marker_pub.publish(marker_remove)
     rospy.loginfo(f"Marble {marble.color} rimossa dalla posizione ({marble.x}, {marble.y})")
@@ -205,7 +205,7 @@ def remove_marble_from_box(box_index):
     marker_remove.header.frame_id = "world"
     marker_remove.header.stamp = rospy.Time.now()
     marker_remove.ns = "marbles"
-    marker_remove.id = box_index
+    marker_remove.id = 10
     marker_remove.action = Marker.DELETE
     marble_marker_pub.publish(marker_remove)
     rospy.loginfo(f"Marble consegnata alla scatola {colors[box_index]} a ({box_status.x[box_index]}, {box_status.y[box_index]})")
