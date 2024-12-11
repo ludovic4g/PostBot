@@ -1,116 +1,82 @@
 #!/usr/bin/python3
 import rospy
-from postbot.msg import MarbleInfo, BoxInfo
-from postbot.srv import spawn_marble
+from postbot.srv import spawn_marble, spawn_marbleResponse
 from visualization_msgs.msg import Marker
 import random
 
-color_position = 0
-spawn = False
+# Publisher per il marker delle biglie
+marblepub = None
 
-def marble_publisher(marble):
-    marblepub = rospy.Publisher('/marble_marker', Marker, queue_size=10)
+def handle_spawn_marble(req):
+    global marblepub
 
+    # Genera posizione e colore della biglia
+    x = random.uniform(0.5, 5.0)
+    y = random.uniform(0.5, 5.0)
+    colors = ['red', 'blue', 'green', 'yellow', 'white', 'purple']
+    color = random.choice(colors)
+
+    # Crea un marker per la biglia
     marker = Marker()
-    marker.header.frame_id="world"
-    marker.id = 1
+    marker.header.frame_id = "world"
+    marker.id = 0
+    marker.ns = "marble"
     marker.type = Marker.SPHERE
     marker.action = Marker.ADD
-    marker.pose.position.x = marble.x
-    marker.pose.position.y = marble.y
+    marker.pose.position.x = x
+    marker.pose.position.y = y
     marker.pose.position.z = 0.1
     marker.scale.x = 0.2
     marker.scale.y = 0.2
     marker.scale.z = 0.2
 
-    if marble.color == 'red':
+    # Imposta il colore della biglia
+    if color == 'red':
         marker.color.r = 1.0
         marker.color.g = 0.0
         marker.color.b = 0.0
-
-    elif marble.color == 'blue':
+    elif color == 'blue':
         marker.color.r = 0.0
         marker.color.g = 0.0
         marker.color.b = 1.0
-        
-    elif marble.color == 'green':
+    elif color == 'green':
         marker.color.r = 0.0
         marker.color.g = 1.0
         marker.color.b = 0.0
-        
-    elif marble.color == 'white':
+    elif color == 'yellow':
+        marker.color.r = 1.0
+        marker.color.g = 1.0
+        marker.color.b = 0.0
+    elif color == 'white':
         marker.color.r = 1.0
         marker.color.g = 1.0
         marker.color.b = 1.0
-
-    elif marble.color == 'purple':
+    elif color == 'purple':
         marker.color.r = 0.5
         marker.color.g = 0.0
         marker.color.b = 0.5
 
-    elif marble.color == 'yellow':
-        marker.color.r = 1.0
-        marker.color.g = 1.0
-        marker.color.b = 0.0
-    
+    marker.color.a = 1.0
 
+    # Pubblica la biglia
     marblepub.publish(marker)
-    rospy.loginfo(f"Spawned Marble with position ({marble.x}, {marble.y}) and color {marble.color}")
-        
+    rospy.loginfo(f"Spawned marble at ({x}, {y}) with color {color}")
 
-rospy.init_node("spawn_marble_node", anonymous=False)
+    # Risposta al servizio
+    success = True
+    return spawn_marbleResponse(done=success)
 
-# Publish to topic /current marble the color and position of the marble
-rospy.loginfo("Waiting for /spawn_marble")
-pub = rospy.Publisher('/current_marble', MarbleInfo, queue_size=10)
-rospy.wait_for_service('/spawn_marble')
-spawn_marble_service = rospy.ServiceProxy('/spawn_marble', spawn_marble)
-rospy.loginfo("Post spawn_marble.")
+def spawn_marble_node():
+    global marblepub
+    rospy.init_node('spawn_marble', anonymous=False)
 
-colors = ['red', 'blue', 'green', 'yellow', 'white', 'purple']
+    # Inizializza il publisher per i marker
+    marblepub = rospy.Publisher('/marble_marker', Marker, queue_size=10)
 
+    # Servizio per spawnare biglie
+    rospy.Service('spawn_marble', spawn_marble, handle_spawn_marble)
+    rospy.loginfo("Ready to spawn a new marble")
+    rospy.spin()
 
-def callback(data):
-    global color_position, spawn
-    rospy.loginfo("Sono nel callback")
-    # Function to see which color is still not chosen
-    empty_boxes = [index for index, value in enumerate(data.status) if value == 0]
-
-    rospy.loginfo(f"boxes status: {empty_boxes}")
-    if empty_boxes:
-        color_position = random.choice(empty_boxes)
-        spawn = True
-        rospy.loginfo(f"color position chosen in callback {color_position}")
-
-
-
-
-# Subscribe to topic /box status to see which color the marble has to be
-rospy.Subscriber("/box_status", BoxInfo, callback)
-#rospy.sleep(10)
-# rospy.loginfo(f"color value: {chosen_color}")
-rate = rospy.Rate(10)
-
-while not rospy.is_shutdown():
-    if spawn and color_position is not None:
-        x = random.uniform(0, 5)
-        y = random.uniform(0, 5)
-        response = spawn_marble_service(x, y, colors[color_position])
-        #rospy.loginfo(f"response value: {response.done}")
-        if response.done:
-            new_marble = MarbleInfo()
-            new_marble.color = colors[color_position]
-            new_marble.x = x
-            new_marble.y = y
-            marble_publisher(new_marble)
-            rospy.loginfo(f"biglia: {new_marble.color}") 
-            # CAMBIA COLORE SU RVIZ
-            # MANDA IL ROBOT IN DIREZIONE DELLA PALLINA
-            rospy.loginfo(f"Publishing into /current_marble topic")
-            pub.publish(new_marble)
-            rospy.loginfo(f"Published into /current_marble topic")
-            #rospy.loginfo("publishd")
-            spawn = False
-            color_position = 0
-
-        rate.sleep()
+if __name__ == "__main__":
+    spawn_marble_node()

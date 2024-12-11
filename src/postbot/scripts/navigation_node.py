@@ -12,6 +12,7 @@ box_color = ' '
 rate = rospy.Rate(1)
 boxpub = None
 robotpub = None
+marblepub = None
 
 # Colori delle scatole
 colors = ['red', 'blue', 'green', 'yellow', 'white', 'purple']
@@ -116,6 +117,51 @@ def robot_marker(x, y):
     robotpub.publish(marker)
     rospy.loginfo("Published robot marker")
 
+def marble_marker(x, y, color):
+    global marblepub
+    marker = Marker()
+    marker.header.frame_id = "world"
+    marker.id = 0
+    marker.ns = "marble"
+    marker.type = Marker.SPHERE
+    marker.action = Marker.ADD
+    marker.pose.position.x = x
+    marker.pose.position.y = y
+    marker.pose.position.z = 0.1
+    marker.scale.x = 0.2
+    marker.scale.y = 0.2
+    marker.scale.z = 0.2
+
+    # Imposta il colore della biglia
+    if color == 'red':
+        marker.color.r = 1.0
+        marker.color.g = 0.0
+        marker.color.b = 0.0
+    elif color == 'blue':
+        marker.color.r = 0.0
+        marker.color.g = 0.0
+        marker.color.b = 1.0
+    elif color == 'green':
+        marker.color.r = 0.0
+        marker.color.g = 1.0
+        marker.color.b = 0.0
+    elif color == 'yellow':
+        marker.color.r = 1.0
+        marker.color.g = 1.0
+        marker.color.b = 0.0
+    elif color == 'white':
+        marker.color.r = 1.0
+        marker.color.g = 1.0
+        marker.color.b = 1.0
+    elif color == 'purple':
+        marker.color.r = 0.5
+        marker.color.g = 0.0
+        marker.color.b = 0.5
+
+    marker.color.a = 1.0
+    marblepub.publish(marker)
+    rospy.loginfo("Published marble marker")
+
 def callback(data):
     global flag, box_color
     box_color = data.color
@@ -133,6 +179,7 @@ def box_status_callback(data):
 rospy.Subscriber('/box_status', BoxInfo, box_status_callback)
 
 robotpub = rospy.Publisher("/robot_marker", Marker, queue_size=10)
+marblepub = rospy.Publisher("/marble_marker", Marker, queue_size=10)
 pub = rospy.Publisher("/box_status", BoxInfo, queue_size=10)
 boxpub = rospy.Publisher('/box_marker', MarkerArray, queue_size=10)
 
@@ -147,32 +194,28 @@ while not rospy.is_shutdown():
         goal_x = box_status.x[i]
         goal_y = box_status.y[i]
 
-        # Teletrasporta Turtlesim
-        rospy.wait_for_service('/turtle1/teleport_absolute')
-        teleport_service = rospy.ServiceProxy('/turtle1/teleport_absolute', TeleportAbsolute)
-        teleport_service(goal_x, goal_y, 0)
+        # Simula la raccolta della biglia
+        marble_x = 1.0  # Posizione della biglia (esempio)
+        marble_y = 2.0
+        marble_color = box_color  # Colore associato
 
-        # Aggiorna la posizione del robot in RViz
+        # Pubblica la biglia
+        marble_marker(marble_x, marble_y, marble_color)
+
+        # Simula il movimento del robot
+        robot_marker(marble_x, marble_y)
+        rospy.loginfo("Robot reached the marble")
+        rospy.sleep(1)  # Pausa per simulare raccolta
+
+        # Simula il movimento verso la scatola
+        navigate_to_goal(goal_x, goal_y)
         robot_marker(goal_x, goal_y)
 
-        # Naviga verso la scatola
-        navigate_to_goal(goal_x, goal_y)
-        current_status[i] = 1
-        rospy.loginfo(f"Current box status: {current_status}")
-        empty_box = [index for index, value in enumerate(current_status) if value == 0]
-        rospy.loginfo(f"Number of available boxes: {len(empty_box)}")
-        if len(empty_box) == 0:
-            try:
-                response = reset_boxes_service()
-                if response.done:
-                    rospy.loginfo("Reset service sent successfully")
-            except rospy.ServiceException as e:
-                rospy.logerr("Service call failed")
-        else:
-            box_status.status = current_status
-            pub.publish(box_status)
-            update_box_marker(i, goal_x, goal_y, box_status)
-            flag = False
-            second_flag = False
-            rospy.loginfo("Updated boxes status:")
+        # Aggiorna la scatola come piena
+        update_box_marker(i, goal_x, goal_y, box_status)
+        rospy.loginfo("Marble delivered to box")
+
+        flag = False
+        second_flag = False
+
     rospy.sleep(5)

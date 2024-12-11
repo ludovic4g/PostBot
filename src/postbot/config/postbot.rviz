@@ -6,7 +6,8 @@ Panels:
       Expanded:
         - /Global Options
         - /Robot Marker
-        - /Boxes
+        - /Marble Marker
+        - /Box Markers
         - /TF
       Splitter Ratio: 0.5
     Tree Height: 584
@@ -71,6 +72,10 @@ Visualization Manager:
       Enabled: true
       Name: Robot Path
       Topic: /move_base/GlobalPlanner/plan
+    - Class: rviz/Path
+      Enabled: true
+      Name: Local Path
+      Topic: /move_base/DWAPlannerROS/local_plan
   Global Options:
     Background Color: 48; 48; 48
     Default Light: true
