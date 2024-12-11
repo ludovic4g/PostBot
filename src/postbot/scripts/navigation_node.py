@@ -2,7 +2,7 @@
 import rospy
 from postbot.msg import BoxInfo, BoxGoal, MarbleInfo
 from postbot.srv import reset_boxes
-from visualization_msgs.msg import Marker, MarkerArray
+from visualization_msgs.msg import Marker
 from geometry_msgs.msg import Twist
 from turtlesim.msg import Pose
 import math
@@ -51,7 +51,7 @@ def box_status_callback(data):
 
 def update_robot_marker(pose):
     marker = Marker()
-    marker.header.frame_id = "world"  # Cambiato da "map" a "world" per Turtlesim
+    marker.header.frame_id = "world"  # 'world' frame per Turtlesim
     marker.header.stamp = rospy.Time.now()
     marker.id = 0
     marker.type = Marker.SPHERE

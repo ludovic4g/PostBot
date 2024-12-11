@@ -13,7 +13,7 @@ def spawn_boxes(box):
 
     for i, (x, y, color) in enumerate(zip(box.x, box.y, box.colors)):
         marker = Marker()
-        marker.header.frame_id = "world"  # Cambiato da "map" a "world" per Turtlesim
+        marker.header.frame_id = "world"  # 'world' frame per Turtlesim
         marker.ns = "boxes"
         marker.id = i
         marker.type = Marker.CUBE
@@ -27,17 +27,29 @@ def spawn_boxes(box):
         marker.scale.z = 0.5
 
         if color == 'red':
-            marker.color.r = 1.0; marker.color.g = 0.0; marker.color.b = 0.0
+            marker.color.r = 1.0
+            marker.color.g = 0.0
+            marker.color.b = 0.0
         elif color == 'blue':
-            marker.color.r = 0.0; marker.color.g = 0.0; marker.color.b = 1.0
+            marker.color.r = 0.0
+            marker.color.g = 0.0
+            marker.color.b = 1.0
         elif color == 'green':
-            marker.color.r = 0.0; marker.color.g = 1.0; marker.color.b = 0.0
+            marker.color.r = 0.0
+            marker.color.g = 1.0
+            marker.color.b = 0.0
         elif color == 'white':
-            marker.color.r = 1.0; marker.color.g = 1.0; marker.color.b = 1.0
+            marker.color.r = 1.0
+            marker.color.g = 1.0
+            marker.color.b = 1.0
         elif color == 'purple':
-            marker.color.r = 0.5; marker.color.g = 0.0; marker.color.b = 0.5
+            marker.color.r = 0.5
+            marker.color.g = 0.0
+            marker.color.b = 0.5
         elif color == 'yellow':
-            marker.color.r = 1.0; marker.color.g = 1.0; marker.color.b = 0.0
+            marker.color.r = 1.0
+            marker.color.g = 1.0
+            marker.color.b = 0.0
 
         marker.color.a = 1.0
         boxes.markers.append(marker)
@@ -51,8 +63,9 @@ def init_boxes():
     box = BoxInfo()
     box.colors =  ['red', 'blue', 'green', 'yellow', 'white', 'purple']
     # Posizioni iniziali di esempio, personalizzare se necessario
-    box.x = [4, 4, 4, -4, -4, -4]
-    box.y = [1, 0, -1, 1, 0, -1]
+    # Assicurarsi che le posizioni siano all'interno di [0, 11]
+    box.x = [2, 2, 2, 8, 8, 8]
+    box.y = [2, 4, 6, 2, 4, 6]
     box.status = [0, 0, 0, 0, 0, 0]
 
     spawn_boxes(box)

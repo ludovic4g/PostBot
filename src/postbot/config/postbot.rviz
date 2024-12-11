@@ -6,6 +6,7 @@ Panels:
       Expanded:
         - /Global Options
         - /Robot Marker
+        - /Marble Marker
         - /Boxes
         - /TF
       Splitter Ratio: 0.5
@@ -44,7 +45,7 @@ Visualization Manager:
       Name: Grid
       Plane: XY
       Plane Cell Count: 10
-      Reference Frame: map
+      Reference Frame: world  # Cambiato da "map" a "world"
     - Class: rviz/TF
       Enabled: true
       Name: TF
@@ -52,9 +53,6 @@ Visualization Manager:
       Show Axes: true
       Show Names: true
       Update Interval: 0
-    - Class: rviz/RobotModel
-      Enabled: true
-      Name: Robot Model
     - Class: rviz/Marker
       Enabled: true
       Marker Topic: /robot_marker
@@ -70,27 +68,16 @@ Visualization Manager:
       Marker Topic: /box_marker
       Name: Box Markers
       Queue Size: 10
-    - Class: rviz/Path
-      Enabled: true
-      Name: Global Path
-      Topic: /move_base/GlobalPlanner/plan
     - Class: rviz/Map
-      Enabled: true
+      Enabled: false  # Disabilitato poiché non utilizzi una mappa
       Name: Map
       Topic: /map
       Alpha: 0.7
-    - Class: rviz/Costmap
-      Enabled: true
-      Name: Global Costmap
-      Topic: /move_base/global_costmap/costmap
-    - Class: rviz/Costmap
-      Enabled: true
-      Name: Local Costmap
-      Topic: /move_base/local_costmap/costmap
+    # Rimosso move_base related displays
   Global Options:
     Background Color: 48; 48; 48
     Default Light: true
-    Fixed Frame: map
+    Fixed Frame: world  # Cambiato da "map" a "world"
     Frame Rate: 30
   Tools:
     - Class: rviz/Interact
@@ -100,8 +87,8 @@ Visualization Manager:
     - Class: rviz/Measure
     - Class: rviz/SetInitialPose
       Topic: /initialpose
-    - Class: rviz/SetGoal
-      Topic: /move_base_simple/goal
+    # Rimosso SetGoal per move_base
+    # Aggiunto eventuali altri strumenti se necessari
 Views:
   Current:
     Class: rviz/Orbit
@@ -114,7 +101,7 @@ Views:
     Name: Current View
     Near Clip Distance: 0.01
     Pitch: 0.785398
-    Target Frame: map
+    Target Frame: world  # Cambiato da "map" a "world"
     Yaw: 0.785398
   Saved: ~
 Window Geometry:
