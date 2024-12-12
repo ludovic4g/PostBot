@@ -8,7 +8,7 @@ from turtlesim.msg import Pose
 import math
 
 robot_color = 'default' # vedere se levarlo!!!!!!
-# robot_pose = False
+robot_pose = False
 
 # Inizializzazione del nodo
 rospy.init_node("navigation", anonymous=False)
@@ -35,7 +35,7 @@ tolerance = 0.5  # Tolleranza per raggiungere il goal (adattata per Turtlesim)
 def pose_callback(data):
     global current_pose
     current_pose = data
-    update_robot_marker(current_pose, robot_color)
+    update_robot_marker(current_pose)
 
 def current_marble_callback(data):
     global current_marble, current_state
@@ -49,7 +49,8 @@ def box_status_callback(data):
     box_status = data
     update_boxes(box_status)
 
-def update_robot_marker(pose, color):
+def update_robot_marker(pose):
+    global robot_pose
     #rospy.loginfo(f"Current marble color in update_robot_marker: {color}")
     marker = Marker()
     marker.header.frame_id = "world"  # 'world' frame per Turtlesim
@@ -58,7 +59,12 @@ def update_robot_marker(pose, color):
     marker.ns = "postbot"
     marker.type = Marker.SPHERE 
     marker.action = Marker.ADD
-    #initial_pose = rospy.get_param('robot_initial_pose', 'src/postbot/config/robot_par.yaml')
+    if not robot_pose:
+        initial_pose = rospy.get_param('robot_initial_pose', 'src/postbot/config/robot_par.yaml')
+        pose.x = initial_pose['x']
+        pose.y = initial_pose['y']
+        robot_pose = True
+    
     marker.pose.position.x = pose.x
     marker.pose.position.y = pose.y
     marker.pose.position.z = 0.1
@@ -67,8 +73,8 @@ def update_robot_marker(pose, color):
     marker.scale.y = 0.2
     marker.scale.z = 0.5
     marker.color.r = 0.5
-    marker.color.g = 0.5
-    marker.color.b = 0.5
+    marker.color.g = 1
+    marker.color.b = 1
 
     marker.color.a = 1.0
     robot_marker_pub.publish(marker)
@@ -106,7 +112,7 @@ def check_reached(target_x, target_y):
     return distance < tolerance
 
 def manage_movement():
-    global current_state, current_marble, box_status
+    global current_state, current_marble, box_status, robot_pose
 
     if current_state == "MOVING_TO_MARBLE":
         if current_marble:
@@ -142,6 +148,8 @@ def manage_movement():
                     rospy.loginfo("Tutte le scatole sono piene. Reset in corso...")
                     try:
                         response = reset_boxes_service()
+                        rospy.loginfo("")
+                        robot_pose = False
                         if response.done:
                             rospy.loginfo("Reset delle scatole completato.")
                             current_state = "IDLE"
