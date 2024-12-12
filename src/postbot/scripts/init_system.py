@@ -60,8 +60,7 @@ def init_boxes():
 
     box = BoxInfo()
     box.colors =  ['red', 'blue', 'green', 'yellow', 'white', 'purple']
-    # Posizioni iniziali di esempio, personalizzare se necessario
-    # Assicurarsi che le posizioni siano all'interno di [0, 11]
+    # Cambiare posizioni per renderle casuali
     box.x = [2, 2, 2, 8, 8, 8]
     box.y = [2, 4, 6, 2, 4, 6]
     box.status = [0, 0, 0, 0, 0, 0]

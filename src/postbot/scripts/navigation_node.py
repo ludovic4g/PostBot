@@ -2,12 +2,12 @@
 import rospy
 from postbot.msg import BoxInfo, MarbleInfo
 from postbot.srv import reset_boxes
-from visualization_msgs.msg import Marker
+from visualization_msgs.msg import Marker, MarkerArray
 from geometry_msgs.msg import Twist
 from turtlesim.msg import Pose
 import math
 
-robot_color = False
+robot_color = 'default' # vedere se levarlo!!!!!!
 # robot_pose = False
 
 # Inizializzazione del nodo
@@ -18,6 +18,7 @@ robot_marker_pub = rospy.Publisher("/robot_marker", Marker, queue_size=10)
 marble_marker_pub = rospy.Publisher("/marble_marker", Marker, queue_size=10)
 cmd_vel_pub = rospy.Publisher('/turtle1/cmd_vel', Twist, queue_size=10)
 box_status_pub = rospy.Publisher("/box_status", BoxInfo, queue_size=10)
+boxpub = rospy.Publisher('/box_marker', MarkerArray, queue_size=10)
 
 # Service Proxy per resettare le scatole
 rospy.wait_for_service('/reset_boxes')
@@ -34,7 +35,7 @@ tolerance = 0.5  # Tolleranza per raggiungere il goal (adattata per Turtlesim)
 def pose_callback(data):
     global current_pose
     current_pose = data
-    update_robot_marker(current_pose)
+    update_robot_marker(current_pose, robot_color)
 
 def current_marble_callback(data):
     global current_marble, current_state
@@ -46,9 +47,10 @@ def current_marble_callback(data):
 def box_status_callback(data):
     global box_status
     box_status = data
+    update_boxes(box_status)
 
-def update_robot_marker(pose):
-
+def update_robot_marker(pose, color):
+    rospy.loginfo(f"Current marble color in update_robot_marker: {color}")
     marker = Marker()
     marker.header.frame_id = "world"  # 'world' frame per Turtlesim
     #marker.header.stamp = rospy.Time.now()
@@ -66,7 +68,8 @@ def update_robot_marker(pose):
     marker.scale.z = 0.5
     marker.color.r = 0.5
     marker.color.g = 0.5
-    marker.color.b = 0.5 
+    marker.color.b = 0.5
+
     marker.color.a = 1.0
     robot_marker_pub.publish(marker)
 
@@ -127,10 +130,11 @@ def manage_movement():
                 # Incrementare lo stato della scatola
                 current_boxes = list(box_status.status)
                 current_boxes[box_index] = 1
+                rospy.loginfo(f"Current status of the boxes: {current_boxes}")
                 box_status.status = current_boxes
                 box_status_pub.publish(box_status)
                 remove_marble_from_box(current_marble.color)
-                update_robot_color(current_marble.color)
+                update_boxes(current_boxes)
                 # Resettare la marble corrente
                 current_marble = None
                 # Verificare se tutte le scatole sono piene
@@ -240,41 +244,60 @@ def remove_marble_from_box(color):
     marble_marker_pub.publish(marker_remove)
     rospy.loginfo(f"Marble consegnata alla scatola {color}")
 
+def update_boxes(box):
+    global boxpub
+    boxes = MarkerArray()
 
-def update_robot_color(color):
-    global robot_marker_pub
-    marker = Marker()
-    marker.header.frame_id = "world"
-    marker.id = 0
-    marker.ns = "postbot"
-    marker.action = Marker.ADD
-    if color == 'red':
-        marker.color.r = 1.0
-        marker.color.g = 0.0
-        marker.color.b = 0.0
-    elif color == 'blue':
-        marker.color.r = 0.0
-        marker.color.g = 0.0
-        marker.color.b = 1.0
-    elif color == 'green':
-        marker.color.r = 0.0
-        marker.color.g = 1.0
-        marker.color.b = 0.0
-    elif color == 'white':
-        marker.color.r = 1.0
-        marker.color.g = 1.0
-        marker.color.b = 1.0
-    elif color == 'purple':
-        marker.color.r = 0.5
-        marker.color.g = 0.0
-        marker.color.b = 0.5
-    elif color == 'yellow':
-        marker.color.r = 1.0
-        marker.color.g = 1.0
-        marker.color.b = 0.0
+    for i, (x, y) in enumerate(zip(box.colors, box.status)):
+        marker = Marker()
+        marker.header.frame_id = "world"  # 'world' frame per Turtlesim
+        marker.header.stamp = rospy.Time.now()
+        marker.ns = "boxes"
+        marker.id = i
+        marker.type = Marker.CUBE
+        marker.action = Marker.ADD
+        marker.pose.position.x = boxes.x[i]
+        marker.pose.position.y = boxes.y[i]
+        marker.pose.position.z = 0.25
+        marker.pose.orientation.w = 1.0  # Orientamento neutro
+        marker.scale.x = 0.5
+        marker.scale.y = 0.5
+        marker.scale.z = 0.5
 
-    marker.color.a = 1.0
-    robot_marker_pub.publish(marker)
+        if box.status[i] == 1:
+            marker.color.r = 0.5
+            marker.color.g = 0.5
+            marker.color.b = 0.5
+        else:
+            if box.color[i] == 'red':
+                marker.color.r = 1.0
+                marker.color.g = 0.0
+                marker.color.b = 0.0
+            elif box.color[i] == 'blue':
+                marker.color.r = 0.0
+                marker.color.g = 0.0
+                marker.color.b = 1.0
+            elif box.color[i] == 'green':
+                marker.color.r = 0.0
+                marker.color.g = 1.0
+                marker.color.b = 0.0
+            elif box.color[i] == 'white':
+                marker.color.r = 1.0
+                marker.color.g = 1.0
+                marker.color.b = 1.0
+            elif box.color[i] == 'purple':
+                marker.color.r = 0.5
+                marker.color.g = 0.0
+                marker.color.b = 0.5
+            elif box.color[i] == 'yellow':
+                marker.color.r = 1.0
+                marker.color.g = 1.0
+                marker.color.b = 0.0
+
+        marker.color.a = 1.0
+        boxes.markers.append(marker)
+    
+    boxpub.publish(boxes)
 
 
 def main():
