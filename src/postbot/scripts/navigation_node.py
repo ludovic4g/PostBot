@@ -50,7 +50,7 @@ def box_status_callback(data):
     update_boxes(box_status)
 
 def update_robot_marker(pose, color):
-    rospy.loginfo(f"Current marble color in update_robot_marker: {color}")
+    #rospy.loginfo(f"Current marble color in update_robot_marker: {color}")
     marker = Marker()
     marker.header.frame_id = "world"  # 'world' frame per Turtlesim
     #marker.header.stamp = rospy.Time.now()
@@ -134,7 +134,7 @@ def manage_movement():
                 box_status.status = current_boxes
                 box_status_pub.publish(box_status)
                 remove_marble_from_box(current_marble.color)
-                update_boxes(current_boxes)
+                update_boxes(box_status)
                 # Resettare la marble corrente
                 current_marble = None
                 # Verificare se tutte le scatole sono piene
@@ -248,7 +248,7 @@ def update_boxes(box):
     global boxpub
     boxes = MarkerArray()
 
-    for i, (x, y) in enumerate(zip(box.colors, box.status)):
+    for i, (color, status) in enumerate(zip(box.colors, box.status)):
         marker = Marker()
         marker.header.frame_id = "world"  # 'world' frame per Turtlesim
         marker.header.stamp = rospy.Time.now()
@@ -256,40 +256,40 @@ def update_boxes(box):
         marker.id = i
         marker.type = Marker.CUBE
         marker.action = Marker.ADD
-        marker.pose.position.x = boxes.x[i]
-        marker.pose.position.y = boxes.y[i]
+        marker.pose.position.x = box.x[i]
+        marker.pose.position.y = box.y[i]
         marker.pose.position.z = 0.25
         marker.pose.orientation.w = 1.0  # Orientamento neutro
         marker.scale.x = 0.5
         marker.scale.y = 0.5
         marker.scale.z = 0.5
 
-        if box.status[i] == 1:
+        if status == 1:
             marker.color.r = 0.5
             marker.color.g = 0.5
             marker.color.b = 0.5
         else:
-            if box.color[i] == 'red':
+            if color == 'red':
                 marker.color.r = 1.0
                 marker.color.g = 0.0
                 marker.color.b = 0.0
-            elif box.color[i] == 'blue':
+            elif color == 'blue':
                 marker.color.r = 0.0
                 marker.color.g = 0.0
                 marker.color.b = 1.0
-            elif box.color[i] == 'green':
+            elif color == 'green':
                 marker.color.r = 0.0
                 marker.color.g = 1.0
                 marker.color.b = 0.0
-            elif box.color[i] == 'white':
+            elif color == 'white':
                 marker.color.r = 1.0
                 marker.color.g = 1.0
                 marker.color.b = 1.0
-            elif box.color[i] == 'purple':
+            elif color == 'purple':
                 marker.color.r = 0.5
                 marker.color.g = 0.0
                 marker.color.b = 0.5
-            elif box.color[i] == 'yellow':
+            elif color == 'yellow':
                 marker.color.r = 1.0
                 marker.color.g = 1.0
                 marker.color.b = 0.0
