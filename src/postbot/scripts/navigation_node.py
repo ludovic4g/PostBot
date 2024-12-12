@@ -7,6 +7,9 @@ from geometry_msgs.msg import Twist
 from turtlesim.msg import Pose
 import math
 
+robot_color = False
+# robot_pose = False
+
 # Inizializzazione del nodo
 rospy.init_node("navigation", anonymous=False)
 
@@ -45,22 +48,25 @@ def box_status_callback(data):
     box_status = data
 
 def update_robot_marker(pose):
+
     marker = Marker()
     marker.header.frame_id = "world"  # 'world' frame per Turtlesim
-    marker.header.stamp = rospy.Time.now()
+    #marker.header.stamp = rospy.Time.now()
     marker.id = 0
-    marker.type = Marker.SPHERE
+    marker.ns = "postbot"
+    marker.type = Marker.SPHERE 
     marker.action = Marker.ADD
+    #initial_pose = rospy.get_param('robot_initial_pose', 'src/postbot/config/robot_par.yaml')
     marker.pose.position.x = pose.x
     marker.pose.position.y = pose.y
     marker.pose.position.z = 0.1
-    marker.pose.orientation.w = 1.0  # Orientamento neutro
+    marker.pose.orientation.w = 1.0 
     marker.scale.x = 0.5
-    marker.scale.y = 0.5
+    marker.scale.y = 0.2
     marker.scale.z = 0.5
-    marker.color.r = 0.0
-    marker.color.g = 1.0
-    marker.color.b = 0.0
+    marker.color.r = 0.5
+    marker.color.g = 0.5
+    marker.color.b = 0.5 
     marker.color.a = 1.0
     robot_marker_pub.publish(marker)
 
@@ -124,6 +130,7 @@ def manage_movement():
                 box_status.status = current_boxes
                 box_status_pub.publish(box_status)
                 remove_marble_from_box(current_marble.color)
+                update_robot_color(current_marble.color)
                 # Resettare la marble corrente
                 current_marble = None
                 # Verificare se tutte le scatole sono piene
@@ -232,6 +239,43 @@ def remove_marble_from_box(color):
     marker_remove.action = Marker.DELETE
     marble_marker_pub.publish(marker_remove)
     rospy.loginfo(f"Marble consegnata alla scatola {color}")
+
+
+def update_robot_color(color):
+    global robot_marker_pub
+    marker = Marker()
+    marker.header.frame_id = "world"
+    marker.id = 0
+    marker.ns = "postbot"
+    marker.action = Marker.ADD
+    if color == 'red':
+        marker.color.r = 1.0
+        marker.color.g = 0.0
+        marker.color.b = 0.0
+    elif color == 'blue':
+        marker.color.r = 0.0
+        marker.color.g = 0.0
+        marker.color.b = 1.0
+    elif color == 'green':
+        marker.color.r = 0.0
+        marker.color.g = 1.0
+        marker.color.b = 0.0
+    elif color == 'white':
+        marker.color.r = 1.0
+        marker.color.g = 1.0
+        marker.color.b = 1.0
+    elif color == 'purple':
+        marker.color.r = 0.5
+        marker.color.g = 0.0
+        marker.color.b = 0.5
+    elif color == 'yellow':
+        marker.color.r = 1.0
+        marker.color.g = 1.0
+        marker.color.b = 0.0
+
+    marker.color.a = 1.0
+    robot_marker_pub.publish(marker)
+
 
 def main():
     # Sottoscrizioni

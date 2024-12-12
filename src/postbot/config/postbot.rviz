@@ -45,7 +45,7 @@ Visualization Manager:
       Name: Grid
       Plane: XY
       Plane Cell Count: 10
-      Reference Frame: world  # Cambiato da "map" a "world"
+      Reference Frame: world 
     - Class: rviz/TF
       Enabled: true
       Name: TF
@@ -69,7 +69,7 @@ Visualization Manager:
       Name: Box Markers
       Queue Size: 10
     - Class: rviz/Map
-      Enabled: false  # Disabilitato poiché non utilizzi una mappa
+      Enabled: false 
       Name: Map
       Topic: /map
       Alpha: 0.7
@@ -87,22 +87,20 @@ Visualization Manager:
     - Class: rviz/Measure
     - Class: rviz/SetInitialPose
       Topic: /initialpose
-    # Rimosso SetGoal per move_base
-    # Aggiunto eventuali altri strumenti se necessari
 Views:
   Current:
     Class: rviz/Orbit
-    Distance: 10
+    Distance: 7
     Field of View: 0.785398
     Focal Point:
-      X: 5
-      Y: 5
+      X: 0
+      Y: 0
       Z: 0
     Name: Current View
     Near Clip Distance: 0.01
-    Pitch: 0.785398
-    Target Frame: world  # Cambiato da "map" a "world"
-    Yaw: 0.785398
+    Pitch: 0
+    Target Frame: world 
+    Yaw: 0.
   Saved: ~
 Window Geometry:
   Displays:

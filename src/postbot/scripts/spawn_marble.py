@@ -79,8 +79,8 @@ def main():
 
     while not rospy.is_shutdown():
         if spawn:
-            x = random.uniform(1, 5)  # All marbles within [1,10] for Turtlesim
-            y = random.uniform(1, 5)
+            x = random.uniform(3, 6)  # All marbles within [1,10] for Turtlesim
+            y = random.uniform(3, 6)
             color = colors[color_position]
             try:
                 response = spawn_marble_service(x, y, color)
