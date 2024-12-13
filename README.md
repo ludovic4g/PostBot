@@ -3,8 +3,8 @@
 
 ## What is PostBot?🤖
 
-**PostBot** is an autonomous postman-robot, simulated by **Turtlesim**, that collects colored marbles and has to deliver them in boxes according to the same color.
-**RViz** is utilized for providing a real-time visual representation of the simulation. It displays the robot, marbles, boxes, and the environment grid, offering users a comprehensive view of the robot's interactions within the simulated space.
+**PostBot** is an autonomous postman-robot, simulated by **Turtlesim**, that collects colored marbles and has to deliver them in boxes according to the same color.\\
+**RViz** is utilized for providing a real-time visual representation of the simulation. It displays the robot, marbles, boxes, and the environment grid, offering users a comprehensive view of the robot's interactions within the simulated space.\\
 The simulated world spawns marbles in different points of the map at every cycle, and this position is communicated to the bot through personalized messages. Once the message arrives, the bot goes to the communicated marble position to "collect" it and delivers to the color-corresponding box. When all the boxes are full, the system resets the world by emptying the boxes and spawning new marbles in new position. The bot is now ready for new deliveries!
 
 
