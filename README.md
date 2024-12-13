@@ -145,7 +145,7 @@ If you haven't installed ROS Noetic yet, follow the official guide: [ROS Noetic 
   source devel/setup.sh
   ```
 
-  - **Setup Roscoret**
+  - **Setup Roscore**
    ```bash
   roscore
   ```
