@@ -8,7 +8,9 @@
 By using **Turtlesim** for motion simulation and **RViz** for visualization, the simulated world spawns marbles in different points of the map at every cycle, and this position is communicated to the bot through personalized messages. Once the message arrives, the bot goes to the communicated marble position to "collect" it and delivers to the color-corresponding box. When all the boxes are full, the system resets the world by emptying the boxes and spawning again new marbles. The bot is now ready for new deliveries!
 
 <center>
-![](images/demo.gif)
+  
+  ![](images/demo.gif)
+  
 </center>
 
 ---
