@@ -1,5 +1,4 @@
 # PostBot🤖 - Delivery is on its way!
-![](images/logo.png)
 ---
 
 ## What is PostBot?🤖
