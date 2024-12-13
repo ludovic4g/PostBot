@@ -25,7 +25,7 @@ By using **Turtlesim** for motion simulation and **RViz** for visualization, the
 ---
 
 ## Core Components🕹️
-A rapid overwview of core components that PostBot uses:
+A rapid overview of core components that PostBot uses:
 
 ### Nodes
 - **Initialization Node** (`init_system.py`): Initializes the system by loading parameters and setting up necessary publishers and subscribers.
@@ -40,15 +40,15 @@ A rapid overwview of core components that PostBot uses:
     - **Type:** `MarbleInfo`
     - **Description:** Publishes information about the current target marble, including its color and position. The `navigation_node` subscribes to this topic to determine the next destination for the robot.
 
-- **`/robot_marker`**
+  - **`/robot_marker`**
     - **Type:** `visualization_msgs/Marker`
     - **Description:** Publishes a marker representing the robot's position and state in RViz. This allows for visual tracking and status indication within the simulation environment.
 
-- **`/box_marker`**
+  - **`/box_marker`**
     - **Type:** `visualization_msgs/MarkerArray`
     - **Description:** Publishes markers representing the boxes in the environment. Each box is visualized as a separate marker in RViz, displaying its color and occupancy status.
 
-- **`/box_status`**
+  - **`/box_status`**
     - **Type:** `BoxInfo`
     - **Description:** Publishes the status of each box, including its color, position, and whether it is currently occupied. This information is used by nodes to manage interactions with boxes.
 
@@ -57,7 +57,7 @@ A rapid overwview of core components that PostBot uses:
       - **Type:** `turtlesim/Pose`
       - **Description:** Publishes the current pose (position and orientation) of the turtle. The `navigation_node` subscribes to this topic to receive real-time updates of the robot's location.
   
-  - **`/turtle1/cmd_vel`**
+    - **`/turtle1/cmd_vel`**
       - **Type:** `geometry_msgs/Twist`
       - **Description:** Accepts velocity commands to control the movement of the turtle. The `navigation_node` publishes to this topic to drive the robot towards targets.
   
@@ -127,26 +127,31 @@ A rapid overwview of core components that PostBot uses:
 We assumes you are using **Ubuntu 20.04 (Focal Fossa)** with **ROS Noetic Ninjemys**. Ensure you have the necessary permissions to install software and modify system configurations.
 If you haven't installed ROS Noetic yet, follow the official guide: [ROS Noetic Installation Guide](http://wiki.ros.org/noetic/Installation/Ubuntu).
 
-  -**Create Catkin Workspace for managing ROS projects**
+  - **Create Catkin Workspace for managing ROS projects**
   ```bash
   mkdir -p ~/catkin_ws/src
   cd ~/catkin_ws/
   ```
 
-  -**Clone the PostBot repository**
+  - **Clone the PostBot repository**
   ```bash
   cd ~/catkin_ws/src
   git clone https://github.com/ludovic4g/PostBot.git
   ```
 
-  -**Initialize and source the Workspace**
+  - **Initialize and source the Workspace**
   ```bash
   catkin_make
   source devel/setup.sh
   ```
 
-  -**Launch PostBot**
+  - **Setup Roscoret**
    ```bash
+  roscore
+  ```
+
+  - **Launch PostBot**
+  ```bash
   roslaunch postbot system.launch
   ```
   
