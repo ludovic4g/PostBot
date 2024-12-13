@@ -5,6 +5,7 @@ from threading import Condition
 
 flag = False
 box_flag = False
+# threading needed for the right sequencing of the information reading
 sequencing = Condition()
 rospy.init_node('managing_boxes', anonymous=False)
 

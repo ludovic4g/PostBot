@@ -10,7 +10,7 @@ color_position = 0
 
 def marble_publisher(marble):
     marker = Marker()
-    marker.header.frame_id = "world"  # 'world' frame per Turtlesim
+    marker.header.frame_id = "world" 
     marker.header.stamp = rospy.Time.now()
     marker.ns = "marbles"
     marker.type = Marker.SPHERE
@@ -18,7 +18,7 @@ def marble_publisher(marble):
     marker.pose.position.x = marble.x
     marker.pose.position.y = marble.y
     marker.pose.position.z = 0.1
-    marker.pose.orientation.w = 1.0  # Orientamento neutro
+    marker.pose.orientation.w = 1.0 
     marker.scale.x = 0.2
     marker.scale.y = 0.2
     marker.scale.z = 0.2
@@ -77,9 +77,10 @@ def main():
     rospy.Subscriber("/box_status", BoxInfo, marble_callback)
     rate = rospy.Rate(1)  # 1 Hz
 
+    # spawning the marble randomly
     while not rospy.is_shutdown():
         if spawn:
-            x = random.uniform(3, 6)  # All marbles within [1,10] for Turtlesim
+            x = random.uniform(3, 6)  
             y = random.uniform(3, 6)
             color = colors[color_position]
             try:
@@ -89,6 +90,7 @@ def main():
                     new_marble.color = color
                     new_marble.x = x
                     new_marble.y = y
+                    rospy.loginfo(f"Current marble is at: {new_marble.x}, {new_marble.y} in {new_marble.color}")
                     marble_publisher(new_marble)
                     pub.publish(new_marble)
                     spawn = False

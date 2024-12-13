@@ -10,7 +10,7 @@ def spawn_boxes(box):
 
     for i, (x, y, color) in enumerate(zip(box.x, box.y, box.colors)):
         marker = Marker()
-        marker.header.frame_id = "world"  # 'world' frame per Turtlesim
+        marker.header.frame_id = "world"  # Frame where TurtleSim operates
         marker.header.stamp = rospy.Time.now()
         marker.ns = "boxes"
         marker.id = i
@@ -19,7 +19,7 @@ def spawn_boxes(box):
         marker.pose.position.x = x
         marker.pose.position.y = y
         marker.pose.position.z = 0.25
-        marker.pose.orientation.w = 1.0  # Orientamento neutro
+        marker.pose.orientation.w = 1.0 
         marker.scale.x = 0.5
         marker.scale.y = 0.5
         marker.scale.z = 0.5
@@ -56,19 +56,18 @@ def spawn_boxes(box):
 
 def init_boxes():
     pub = rospy.Publisher('/box_status', BoxInfo, queue_size=10)
-    rospy.sleep(1)  # Adjust sleep to ensure publisher is ready
+    rospy.sleep(1) 
 
     box = BoxInfo()
     box.colors =  ['red', 'blue', 'green', 'yellow', 'white', 'purple']
-    # Cambiare posizioni per renderle casuali
-    box.x = [2, 2, 2, 8, 8, 8]
+    box.x = [2, 2, 2, 6, 6, 6]
     box.y = [2, 4, 6, 2, 4, 6]
     box.status = [0, 0, 0, 0, 0, 0]
 
     spawn_boxes(box)
 
     # Publish the initial box status
-    rospy.sleep(1)  # Allow marker to be published before publishing box status
+    rospy.sleep(1)
     pub.publish(box)
 
 def handle_reset_boxes(req):

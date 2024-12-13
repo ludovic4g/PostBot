@@ -7,36 +7,37 @@ from geometry_msgs.msg import Twist
 from turtlesim.msg import Pose
 import math
 
-robot_color = 'default' # vedere se levarlo!!!!!!
 robot_pose = False
 
-# Inizializzazione del nodo
 rospy.init_node("navigation", anonymous=False)
 
-# Publisher per i marker e per i comandi di velocità del turtle
 robot_marker_pub = rospy.Publisher("/robot_marker", Marker, queue_size=10)
 marble_marker_pub = rospy.Publisher("/marble_marker", Marker, queue_size=10)
 cmd_vel_pub = rospy.Publisher('/turtle1/cmd_vel', Twist, queue_size=10)
 box_status_pub = rospy.Publisher("/box_status", BoxInfo, queue_size=10)
 boxpub = rospy.Publisher('/box_marker', MarkerArray, queue_size=10)
 
-# Service Proxy per resettare le scatole
+# service call
 rospy.wait_for_service('/reset_boxes')
 reset_boxes_service = rospy.ServiceProxy('/reset_boxes', reset_boxes)
 
-# Variabili globali
+
 current_pose = Pose()
-current_state = "IDLE"  # Stati: IDLE, MOVING_TO_MARBLE, MOVING_TO_BOX
+# Marble states for navigation: IDLE, MOVING_TO_MARBLE, MOVING_TO_BOX
+current_state = "IDLE"  
 current_marble = None
 box_status = BoxInfo()
 colors = ['red', 'blue', 'green', 'yellow', 'white', 'purple']
-tolerance = 0.5  # Tolleranza per raggiungere il goal (adattata per Turtlesim)
+tolerance = 0.5 
 
+# callback for turtlesim position
 def pose_callback(data):
     global current_pose
     current_pose = data
     update_robot_marker(current_pose)
 
+
+# callback for checking current marble to navigate towards it
 def current_marble_callback(data):
     global current_marble, current_state
     if current_state == "IDLE":
@@ -44,21 +45,25 @@ def current_marble_callback(data):
         rospy.loginfo(f"Nuova marble: {current_marble.color} a ({current_marble.x}, {current_marble.y})")
         current_state = "MOVING_TO_MARBLE"
 
+# callback for checking box status, needed for changing color 
 def box_status_callback(data):
     global box_status
     box_status = data
     update_boxes(box_status)
 
+
+# function to update turtlesim configuration
 def update_robot_marker(pose):
     global robot_pose
-    #rospy.loginfo(f"Current marble color in update_robot_marker: {color}")
     marker = Marker()
-    marker.header.frame_id = "world"  # 'world' frame per Turtlesim
-    #marker.header.stamp = rospy.Time.now()
+    marker.header.frame_id = "world"
     marker.id = 0
     marker.ns = "postbot"
     marker.type = Marker.SPHERE 
     marker.action = Marker.ADD
+
+    # if not set, take position from yaml file
+    rospy.loginfo(f"robot_pose value: {robot_pose}")
     if not robot_pose:
         initial_pose = rospy.get_param('robot_initial_pose', 'src/postbot/config/robot_par.yaml')
         pose.x = initial_pose['x']
@@ -81,27 +86,24 @@ def update_robot_marker(pose):
 
 def move_turtle(target_x, target_y):
     twist = Twist()
-    # Calcolo della distanza e dell'angolo verso il target
+    
+    # distance calculation between turtle sim and goal
     distance = math.sqrt((target_x - current_pose.x)**2 + (target_y - current_pose.y)**2)
     angle_to_target = math.atan2(target_y - current_pose.y, target_x - current_pose.x)
     angle_diff = angle_to_target - current_pose.theta
-
-    # Normalizzazione dell'angolo_diff tra -pi e pi
     angle_diff = math.atan2(math.sin(angle_diff), math.cos(angle_diff))
 
-    # Controllo proporzionale per l'orientamento
+    # calculation of distance and toleration
     if abs(angle_diff) > 0.05:
         twist.angular.z = 2.0 * angle_diff
         twist.linear.x = 0.0
     else:
         twist.angular.z = 0.0
-        # Controllo proporzionale per la distanza
         if distance > tolerance:
                 twist.linear.x = 1.5 * distance
         else:
                 twist.linear.x = 0.0
 
-    # Limitare i valori di velocità
     twist.linear.x = max(min(twist.linear.x, 2.0), -2.0)
     twist.angular.z = max(min(twist.angular.z, 2.0), -2.0)
 
@@ -115,13 +117,12 @@ def manage_movement():
     global current_state, current_marble, box_status, robot_pose
 
     if current_state == "MOVING_TO_MARBLE":
+        # moves to marble and then 'takes it'
         if current_marble:
             move_turtle(current_marble.x, current_marble.y)
             if check_reached(current_marble.x, current_marble.y):
-                rospy.loginfo(f"Pallina {current_marble.color} raccolta a ({current_marble.x}, {current_marble.y})")
-                # Rimuovere la marble dal suo posto
+                rospy.loginfo(f"{current_marble.color} marble taken in position ({current_marble.x}, {current_marble.y})")
                 remove_marble_marker(current_marble)
-                # Passare allo stato di movimento verso la scatola
                 current_state = "MOVING_TO_BOX"
     elif current_state == "MOVING_TO_BOX":
         if current_marble:
@@ -130,41 +131,39 @@ def manage_movement():
             target_box_y = box_status.y[box_index]
             move_turtle(target_box_x, target_box_y)
             if check_reached(target_box_x, target_box_y):
-                rospy.loginfo(f"Consegna pallina {current_marble.color} nella scatola a ({target_box_x}, {target_box_y})")
-                # Aggiungere la marble alla scatola
-                add_marble_to_box(current_marble, box_index)
-                # Incrementare lo stato della scatola
+                rospy.loginfo(f"Delivering {current_marble.color} marble to box in position ({target_box_x}, {target_box_y})")
+                # Update boxes status
                 current_boxes = list(box_status.status)
                 current_boxes[box_index] = 1
                 rospy.loginfo(f"Current status of the boxes: {current_boxes}")
                 box_status.status = current_boxes
                 box_status_pub.publish(box_status)
-                remove_marble_from_box(current_marble.color)
+                #Change color to grey when they are full
                 update_boxes(box_status)
-                # Resettare la marble corrente
+
+                # waiting for new spawned marble
                 current_marble = None
-                # Verificare se tutte le scatole sono piene
+                # If all boxes are full
                 if all(status == 1 for status in box_status.status):
-                    rospy.loginfo("Tutte le scatole sono piene. Reset in corso...")
+                    rospy.loginfo("Boxes full. Calling reset service.")
                     try:
                         response = reset_boxes_service()
                         rospy.loginfo("")
                         robot_pose = False
                         if response.done:
-                            rospy.loginfo("Reset delle scatole completato.")
+                            rospy.loginfo("Reset complete.")
                             current_state = "IDLE"
                     except rospy.ServiceException as e:
                         rospy.logerr(f"Service call failed: {e}")
                 else:
                     current_state = "IDLE"
     elif current_state == "IDLE":
-        pass  # Attendere nuovi obiettivi
+        pass 
 
 def remove_marble_marker(marble):
-    # Rimuovere la marble dalla sua posizione originale
+    # When the marble is taken, it is removed from the map
     marker_remove = Marker()
     marker_remove.header.frame_id = "world"
-    # marker_remove.header.stamp = rospy.Time.now()
     marker_remove.ns = "marbles"
     if marble.color == 'red':
         marker_remove.id = 11 
@@ -178,88 +177,20 @@ def remove_marble_marker(marble):
         marker_remove.id = 15 
     if marble.color == 'yellow':
         marker_remove.id = 16
-    rospy.loginfo(f"Id della biglia da levare: {marker_remove.id}")
+    rospy.loginfo(f"MId of the marble to remove: {marker_remove.id}")
     marker_remove.action = Marker.DELETE
     marble_marker_pub.publish(marker_remove)
-    rospy.loginfo(f"Marble {marble.color} rimossa dalla posizione ({marble.x}, {marble.y})")
+    rospy.loginfo(f"Marble {marble.color} removed from ({marble.x}, {marble.y})")
 
-def add_marble_to_box(marble, box_index):
-    marker_add = Marker()
-    marker_add.header.frame_id = "world"
-    marker_add.header.stamp = rospy.Time.now()
-    marker_add.ns = "marbles"
-    marker_add.id = box_index  # Assicurarsi che l'ID sia unico per ogni scatola
-    marker_add.type = Marker.SPHERE
-    marker_add.action = Marker.ADD
-    marker_add.pose.position.x = box_status.x[box_index]
-    marker_add.pose.position.y = box_status.y[box_index]
-    marker_add.pose.position.z = 0.1
-    marker_add.pose.orientation.w = 1.0
-    marker_add.scale.x = 0.2
-    marker_add.scale.y = 0.2
-    marker_add.scale.z = 0.2
 
-    # Impostare il colore basato sul colore della marble
-    color = marble.color
-    if color == 'red':
-        marker_add.color.r = 1.0
-        marker_add.color.g = 0.0
-        marker_add.color.b = 0.0
-    elif color == 'blue':
-        marker_add.color.r = 0.0
-        marker_add.color.g = 0.0
-        marker_add.color.b = 1.0
-    elif color == 'green':
-        marker_add.color.r = 0.0
-        marker_add.color.g = 1.0
-        marker_add.color.b = 0.0
-    elif color == 'white':
-        marker_add.color.r = 1.0
-        marker_add.color.g = 1.0
-        marker_add.color.b = 1.0
-    elif color == 'purple':
-        marker_add.color.r = 0.5
-        marker_add.color.g = 0.0
-        marker_add.color.b = 0.5
-    elif color == 'yellow':
-        marker_add.color.r = 1.0
-        marker_add.color.g = 1.0
-        marker_add.color.b = 0.0
-
-    marker_add.color.a = 1.0
-    marble_marker_pub.publish(marker_add)
-    rospy.loginfo(f"Marble {color} spostata nella scatola a ({marker_add.pose.position.x}, {marker_add.pose.position.y})")
-
-def remove_marble_from_box(color):
-    marker_remove = Marker()
-    marker_remove.header.frame_id = "world"
-    marker_remove.header.stamp = rospy.Time.now()
-    marker_remove.ns = "marbles"
-    if color == 'red':
-        marker_remove.id = 11 
-    if color == 'blue':
-        marker_remove.id = 12 
-    if color == 'green':
-        marker_remove.id = 13 
-    if color == 'white':
-        marker_remove.id = 14 
-    if color == 'purple':
-        marker_remove.id = 14 
-    if color == 'yellow':
-        marker_remove.id = 16
-    rospy.loginfo(f"Marble id that have to be remove: {marker_remove.id}")
-    marker_remove.action = Marker.DELETE
-    marble_marker_pub.publish(marker_remove)
-    rospy.loginfo(f"Marble consegnata alla scatola {color}")
-
+# for every full box, its color changes to grey
 def update_boxes(box):
     global boxpub
     boxes = MarkerArray()
 
     for i, (color, status) in enumerate(zip(box.colors, box.status)):
         marker = Marker()
-        marker.header.frame_id = "world"  # 'world' frame per Turtlesim
-        marker.header.stamp = rospy.Time.now()
+        marker.header.frame_id = "world" 
         marker.ns = "boxes"
         marker.id = i
         marker.type = Marker.CUBE
@@ -267,7 +198,7 @@ def update_boxes(box):
         marker.pose.position.x = box.x[i]
         marker.pose.position.y = box.y[i]
         marker.pose.position.z = 0.25
-        marker.pose.orientation.w = 1.0  # Orientamento neutro
+        marker.pose.orientation.w = 1.0 
         marker.scale.x = 0.5
         marker.scale.y = 0.5
         marker.scale.z = 0.5

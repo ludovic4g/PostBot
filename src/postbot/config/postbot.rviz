@@ -3,25 +3,19 @@ Panels:
     Help Height: 78
     Name: Displays
     Property Tree Widget:
-      Expanded:
-        - /Global Options
-        - /Robot Marker
-        - /Marble Marker
-        - /Boxes
-        - /TF
+      Expanded: ~
       Splitter Ratio: 0.5
-    Tree Height: 584
+    Tree Height: 216
   - Class: rviz/Selection
     Name: Selection
   - Class: rviz/Tool Properties
-    Expanded:
-      - /2D Pose Estimate
-      - /2D Nav Goal
+    Expanded: ~
     Name: Tool Properties
     Splitter Ratio: 0.5886790156364441
   - Class: rviz/Views
     Expanded:
-      - /Current View
+      - /Current View1
+      - /Current View1/Focal Point1
     Name: Views
     Splitter Ratio: 0.5
   - Class: rviz/Time
@@ -35,76 +29,125 @@ Toolbars:
 Visualization Manager:
   Class: ""
   Displays:
-    - Class: rviz/Grid
-      Enabled: true
+    - Alpha: 0.5
       Cell Size: 1
+      Class: rviz/Grid
       Color: 160; 160; 164
+      Enabled: true
       Line Style:
-        Line Width: 0.03
+        Line Width: 0.029999999329447746
         Value: Lines
       Name: Grid
+      Normal Cell Count: 0
+      Offset:
+        X: 4
+        Y: 4
+        Z: 0
       Plane: XY
       Plane Cell Count: 10
-      Reference Frame: world 
+      Reference Frame: world
+      Value: true
     - Class: rviz/TF
       Enabled: true
+      Filter (blacklist): ""
+      Filter (whitelist): ""
+      Frame Timeout: 15
+      Frames:
+        All Enabled: true
+      Marker Alpha: 1
+      Marker Scale: 1
       Name: TF
       Show Arrows: true
       Show Axes: true
       Show Names: true
+      Tree:
+        {}
       Update Interval: 0
+      Value: true
     - Class: rviz/Marker
       Enabled: true
       Marker Topic: /robot_marker
       Name: Robot Marker
+      Namespaces:
+        postbot: true
       Queue Size: 10
+      Value: true
     - Class: rviz/Marker
       Enabled: true
       Marker Topic: /marble_marker
       Name: Marble Marker
+      Namespaces:
+        marbles: true
       Queue Size: 10
+      Value: true
     - Class: rviz/MarkerArray
       Enabled: true
       Marker Topic: /box_marker
       Name: Box Markers
+      Namespaces:
+        boxes: true
       Queue Size: 10
-    - Class: rviz/Map
-      Enabled: false 
+      Value: true
+    - Alpha: 0.699999988079071
+      Class: rviz/Map
+      Color Scheme: map
+      Draw Behind: false
+      Enabled: false
       Name: Map
       Topic: /map
-      Alpha: 0.7
-    # Rimosso move_base related displays
+      Unreliable: false
+      Use Timestamp: false
+      Value: false
+  Enabled: true
   Global Options:
     Background Color: 48; 48; 48
     Default Light: true
-    Fixed Frame: world  
+    Fixed Frame: world
     Frame Rate: 30
+  Name: root
   Tools:
     - Class: rviz/Interact
+      Hide Inactive Objects: true
     - Class: rviz/MoveCamera
     - Class: rviz/Select
     - Class: rviz/FocusCamera
     - Class: rviz/Measure
     - Class: rviz/SetInitialPose
+      Theta std deviation: 0.2617993950843811
       Topic: /initialpose
-Views:
-  Current:
-    Class: rviz/Orbit
-    Distance: 7
-    Field of View: 0.785398
-    Focal Point:
-      X: 0
-      Y: 0
-      Z: 0
-    Name: Current View
-    Near Clip Distance: 0.01
-    Pitch: 0
-    Target Frame: world 
-    Yaw: 0.
-  Saved: ~
+      X std deviation: 0.5
+      Y std deviation: 0.5
+  Value: true
+  Views:
+    Current:
+      Class: rviz/Orbit
+      Distance: 10
+      Enable Stereo Rendering:
+        Stereo Eye Separation: 0.05999999865889549
+        Stereo Focal Distance: 1
+        Swap Stereo Eyes: false
+        Value: false
+      Field of View: 0.7853981852531433
+      Focal Point:
+        X: 4
+        Y: 3
+        Z: 0
+      Focal Shape Fixed Size: true
+      Focal Shape Size: 0.05000000074505806
+      Invert Z Axis: false
+      Name: Current View
+      Near Clip Distance: 0.009999999776482582
+      Pitch: 0.6903982758522034
+      Target Frame: <Fixed Frame>
+      Yaw: 4.715409278869629
+    Saved: ~
 Window Geometry:
   Displays:
     collapsed: false
+  Height: 881
+  Hide Left Dock: false
+  Hide Right Dock: false
+  QMainWindow State: 000000ff00000000fd00000001000000000000051800000317fc0200000005fb000000100044006900730070006c006100790073010000003d00000163000000c900fffffffb0000001200530065006c0065006300740069006f006e01000001a60000005c0000005c00fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007301000002080000005c0000005c00fffffffb0000000a00560069006500770073010000026a000000a4000000a400fffffffb0000000800540069006d00650100000314000000400000003900ffffff000000820000031700000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
   Selection:
     collapsed: false
   Time:
@@ -113,7 +156,6 @@ Window Geometry:
     collapsed: false
   Views:
     collapsed: false
-  Height: 800
-  Width: 1400
-  X: 100
-  Y: 50
+  Width: 1440
+  X: 72
+  Y: 27
