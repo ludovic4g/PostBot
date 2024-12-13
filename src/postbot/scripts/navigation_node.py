@@ -63,7 +63,7 @@ def update_robot_marker(pose):
     marker.action = Marker.ADD
 
     # if not set, take position from yaml file
-    rospy.loginfo(f"robot_pose value: {robot_pose}")
+    #rospy.loginfo(f"robot_pose value: {robot_pose}")
     if not robot_pose:
         initial_pose = rospy.get_param('robot_initial_pose', 'src/postbot/config/robot_par.yaml')
         pose.x = initial_pose['x']
