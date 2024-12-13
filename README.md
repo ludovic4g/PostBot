@@ -128,7 +128,7 @@ A rapid overview of core components that PostBot uses:
 
 ---
 
-## How To Install
+## How To Install🎮
 We assumes you are using **Ubuntu 20.04 (Focal Fossa)** with **ROS Noetic Ninjemys**. Ensure you have the necessary permissions to install software and modify system configurations.
 If you haven't installed ROS Noetic yet, follow the official guide: [ROS Noetic Installation Guide](http://wiki.ros.org/noetic/Installation/Ubuntu).
 
@@ -162,12 +162,12 @@ If you haven't installed ROS Noetic yet, follow the official guide: [ROS Noetic 
   
 ---
 
-## License
+## License📝
 This project is licensed under the [MIT License](LICENSE).
 
 ---
 
-## Collaborators
+## Collaborators🫂
 - **Ludovica Genovese** - [ludovic4g](https://github.com/ludovic4g)
 - **Manuel Sica**  - [manuelsica](https://github.com/manuelsica)
 
