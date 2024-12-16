@@ -39,7 +39,6 @@ A rapid overview of core components that PostBot uses:
 
 ### Nodes
 - **Initialization Node** (`init_system.py`): Initializes the system by loading parameters and setting up necessary publishers and subscribers.
-- **Managing Deliveries** (`managing_boxes.py`): For managing deliveries by communicating the Box Goal.
 - **Spawning Marble** (`spawn_marble.py`): For managing the position of the newly-spawned marble and to communicate its position.
 - **Navigation Node** (`navigation_node.py`): Receive the delivery goal and plans the path the TurteSim has to follow.. Once it arrives to destination it updates the box status. Subscribes to `/turtle1/pose` to receive the robot's current pose and publishes to `/turtle1/cmd_vel` to control movement.
 
@@ -138,7 +137,7 @@ A rapid overview of core components that PostBot uses:
 ---
 
 ## How To Install🎮
-We assumes you are using **Ubuntu 20.04 (Focal Fossa)** with **ROS Noetic Ninjemys**. Ensure you have the necessary permissions to install software and modify system configurations.
+We assume you are using **Ubuntu 20.04 (Focal Fossa)** with **ROS Noetic Ninjemys**. Ensure you have the necessary permissions to install software and modify system configurations.
 If you haven't installed ROS Noetic yet, follow the official guide: [ROS Noetic Installation Guide](http://wiki.ros.org/noetic/Installation/Ubuntu).
 We also presume **RViz** is installed correctly, if not please refer to the guide here: [RViz Installation Guide](http://wiki.ros.org/rviz/UserGuide).
 
