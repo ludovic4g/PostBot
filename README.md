@@ -101,6 +101,15 @@ A rapid overview of core components that PostBot uses:
     ---
     bool done
     ```
+- **Custom Services:**
+  - `spawn_marble.srv`:
+    ```srv
+    float32 x
+    float32 y
+    string color
+    ---
+    bool done
+    ```
 
 - **Built-in Services:**
   - `/turtle1/set_pose`: Sets the robot's pose in Turtlesim.
