@@ -4,8 +4,6 @@
 
     <node name="init_system" pkg= "postbot" type="init_system.py" output="screen"/>
 
-    <node name="managing_boxes" pkg= "postbot" type="managing_boxes.py" output="screen"/>
-
     <node name="spawn_marble_server" pkg= "postbot" type="spawn_marble_server.py" output="screen"/>
 
     <node name="spawn_marble" pkg= "postbot" type="spawn_marble.py" output="screen"/>

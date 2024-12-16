@@ -54,7 +54,7 @@ def spawn_boxes(box):
     
     boxpub.publish(boxes)
 
-def init_boxes():
+def main():
     pub = rospy.Publisher('/box_status', BoxInfo, queue_size=10)
     rospy.sleep(1) 
 
@@ -71,7 +71,7 @@ def init_boxes():
     pub.publish(box)
 
 def handle_reset_boxes(req):
-    init_boxes()
+    main()
     rospy.loginfo("Reset service call arrived, done = true")
     return reset_boxesResponse(done=True)
 
@@ -81,5 +81,5 @@ if __name__ == "__main__":
     boxpub = rospy.Publisher('/box_marker', MarkerArray, queue_size=10)
     rospy.Service('reset_boxes', reset_boxes, handle_reset_boxes)
     rospy.loginfo("Ready to reset boxes")
-    init_boxes()
+    main()
     rospy.spin()
