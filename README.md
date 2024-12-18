@@ -100,7 +100,6 @@ A rapid overview of core components that PostBot uses:
     ---
     bool done
     ```
-- **Custom Services:**
   - `spawn_marble.srv`:
     ```srv
     float32 x
@@ -111,7 +110,7 @@ A rapid overview of core components that PostBot uses:
     ```
 
 - **Built-in Services:**
-  - `/turtle1/set_pose`: Sets the robot's pose in Turtlesim.
+  - `/turtle1/teleport_absolute`: Sets the robot's position by teleporting it in a certain position given by x,y and theta values.
 
   
 ### Parameters
@@ -131,8 +130,8 @@ A rapid overview of core components that PostBot uses:
   - As the robot moves, the node also updates the robot's marker in RViz so that the movement is seen in the environment.
   - Upon reaching a marble, the robot "collects" it and the marble disappear.
   - The robot then navigate towards the corresponding box. Once it arrives at the box's location, the box is 'full' and then turns grey.
-  - When all the boxes are grey, and so they are all full, the `reset_boxes` is called.
-  - The `reset_boxes` service resets the status of all boxes, making them available for new marbles and so initiating a new cycle of deliveries!
+  - When all the boxes are grey, and so they are all full, the `reset_boxes` and turtlesim's `teleport_absolute` are called.
+  - The `reset_boxes` service resets the status of all boxes making them available for new marbles; the `teleport_absolute` reset the robot position based on its parameters, It starts a new cycle of deliveries!
 
 ---
 
@@ -168,6 +167,14 @@ We also presume **RViz** is installed correctly, if not please refer to the guid
   ```bash
   roslaunch postbot system.launch
   ```
+
+Try changing the robot initial position at the start of every cicle! (value has to be a float)
+  - **Launch PostBot**
+  ```bash
+  rosparam set /robot_initial_pose "{x: <value>, y: <value>}"
+  ```
+
+
   
 ---
 
