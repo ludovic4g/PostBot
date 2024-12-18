@@ -1,9 +1,9 @@
 <launch>
     <rosparam file="$(find postbot)/config/robot_par.yaml" command="load"/>
 
-    <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
+    <!--<node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
         <param name="robot_description" command="cat $(find postbot)/urdf/postbot.urdf"/>
-    </node>
+    </node> -->
 
     <node pkg="turtlesim" type="turtlesim_node" name="turtlesim" output="screen"/>
     

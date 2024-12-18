@@ -5,6 +5,7 @@ from postbot.srv import reset_boxes
 from visualization_msgs.msg import Marker, MarkerArray
 from geometry_msgs.msg import Twist
 from turtlesim.msg import Pose
+from turtlesim.srv import TeleportAbsolute, TeleportAbsoluteRequest
 import math
 
 robot_pose = False
@@ -151,6 +152,19 @@ def manage_movement():
                         rospy.loginfo("")
                         robot_pose = False
                         if response.done:
+                            initial_pose = rospy.get_param('robot_initial_pose', 'src/postbot/config/robot_par.yaml')
+                            pose = Pose()
+                            pose.x = initial_pose['x']
+                            pose.y = initial_pose['y']
+
+                            teleport = TeleportAbsoluteRequest()
+                            teleport.x = pose.x
+                            teleport.y = pose.y
+                            teleport.theta = 0.0
+
+                            rospy.wait_for_service('/turtle1/teleport_absolute')
+                            teleport_proxy = rospy.ServiceProxy('turtle1/teleport_absolute', TeleportAbsolute)
+                            teleport_response = teleport_proxy(teleport.x, teleport.y, teleport.theta)
                             rospy.loginfo("Reset complete.")
                             current_state = "IDLE"
                     except rospy.ServiceException as e:
