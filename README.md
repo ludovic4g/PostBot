@@ -53,6 +53,10 @@ A rapid overview of core components that PostBot uses:
     - **Type:** `visualization_msgs/Marker`
     - **Description:** Publishes a marker representing the robot's position and state in RViz. This allows for visual tracking and status indication within the simulation environment.
 
+  - **`/marble_marker`**
+    - **Type:** `visualization_msgs/Marker`
+    - **Description:** Publishes a marker representing the marble's position and color in RViz. This allows for visual tracking and status indication within the simulation environment.
+
   - **`/box_marker`**
     - **Type:** `visualization_msgs/MarkerArray`
     - **Description:** Publishes markers representing the boxes in the environment. Each box is visualized as a separate marker in RViz, displaying its color and occupancy status.
